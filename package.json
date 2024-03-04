@@ -22,7 +22,7 @@
     "test": "node --import tsx --test src",
     "npm-v-patch": "npm version patch",
     "npm-v-major": "npm version major",
-    "npm-publish": "npm publish",
+    "npm-publish": "npm publish --access public",
     "reset-repo": "git fetch origin && git reset --hard origin/main",
     "link-local-common": "npm link @kwiz/common"
   },
@@ -63,7 +63,7 @@
   },
   "dependencies": {
     "@azure/msal-node": "^2.6.4",
-    "@kwiz/common": "^1.0.6",
+    "@kwiz/common": "^1.0.7",
     "axios": "^1.6.7",
     "esbuild": "^0.19.12",
     "get-tsconfig": "^4.7.2",
