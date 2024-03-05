@@ -1,16 +1,17 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "target": "ES2020",
+    "target": "ES6",
     "outDir": "dist",
     "rootDir": "./src",
     "sourceMap": true,
     "declaration": true,
     "strict": false,
-    "skipLibCheck": true,
     "typeRoots": [
       "./src/@types"
     ],
+    "moduleResolution": "Node",
+    "allowSyntheticDefaultImports": true
   },
   "include": [
     "./src"

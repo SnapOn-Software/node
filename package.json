@@ -2,7 +2,6 @@
   "name": "@kwiz/node",
   "version": "1.0.5",
   "description": "KWIZ utilities and helpers for node applications",
-  "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
@@ -56,14 +55,14 @@
   },
   "packageManager": "npm@9.5.1",
   "devDependencies": {
-    "@types/node": "^20.11.24",
+    "@types/node": "^18.19.21",
     "madge": "^6.1.0",
     "tsx": "^4.7.1",
     "typescript": "^5.3.3"
   },
   "dependencies": {
     "@azure/msal-node": "^2.6.4",
-    "@kwiz/common": "^1.0.9",
+    "@kwiz/common": "^1.0.10",
     "axios": "^1.6.7",
     "esbuild": "^0.19.12",
     "get-tsconfig": "^4.7.2",
