@@ -1,4 +1,4 @@
-export * from "./auth";
+export * from "./auth/discovery";
+export * from "./auth/msal";
 export * from "./axios";
-export * from "./spo";
-
+export * from "./spo/common";
