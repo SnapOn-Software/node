@@ -1,6 +1,6 @@
 {
   "name": "@kwiz/node",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "KWIZ utilities and helpers for node applications",
   "main": "dist/index.js",
   "module": "dist/index.js",
