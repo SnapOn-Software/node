@@ -24,7 +24,9 @@
     "npm-publish": "npm publish --access public",
     "reset-repo": "git fetch origin && git reset --hard origin/main",
     "link-local-common": "npm link @kwiz/common",
-    "reindex-project": "cti create ./src -i _dependencies -w -b -n -o exports-index.ts && node fix-folder-imports.js"
+    "reindex-project": "cti create ./src -i _dependencies -w -b -n -o exports-index.ts && node fix-folder-imports.js",
+    "install-packages": "npm install azurite -g && npm ci",
+    "startDevStorage": "azurite -s -l"
   },
   "repository": {
     "type": "git",
@@ -64,6 +66,7 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
+    "@azure/data-tables": "^13.2.2",
     "@azure/msal-node": "^2.6.4",
     "@kwiz/common": "^1.0.10",
     "axios": "^1.6.7",
