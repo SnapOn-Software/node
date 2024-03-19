@@ -1,9 +1,14 @@
 import assert from 'assert/strict';
 import test from 'node:test';
+import { IsAzuriteRunning } from "./common";
 import { ODataOperators } from "./odata";
 import { ConfigureTableStorage, Table, addItem, ensureTable } from "./table-storage";
 
 test('testTableStorage', async t => {
+    if (!(await IsAzuriteRunning())) {
+        console.log('Skipping table-storage tests - azurite is not running.');
+        return;
+    }
     //configure storage
     ConfigureTableStorage({ connectionString: "UseDevelopmentStorage=true" });
 
@@ -21,7 +26,8 @@ test('testTableStorage', async t => {
     const rowKey2 = "0b8612bb-377d-4897-be8f-a532a1ad3e73|cd24aa15-0d03-4892-bb46-af32e5fb9361";
     //start fresh
     let result = await table.delete();
-    await t.test("Delete table", t => assert.strictEqual(result, true));
+    //don't test this - it might have a table to delete and might not... depending if cleanup didn't work last run
+    //await t.test("Delete table", t => assert.strictEqual(result, true));
 
     //provoke table name not allowed
     result = await ensureTable("T2");
