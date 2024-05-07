@@ -33,8 +33,11 @@ function GetApp(tenantInfo: ITenantInfo, auth: AuthContextType) {
 }
 
 /** client secret not supported by SharePoint, must use certificate */
-export async function GetMSALToken(tenantInfo: ITenantInfo, scope: string, auth: AuthContextType) {
-    let token = await GetApp(tenantInfo, auth).acquireTokenByClientCredential({
+export async function GetMSALToken(tenantInfo: ITenantInfo, scope: string, auth: AuthContextType, clearCache?: boolean) {
+    const app = GetApp(tenantInfo, auth);
+    if (clearCache)
+        app.clearCache();
+    let token = await app.acquireTokenByClientCredential({
         scopes: [`${scope}/.default`]
     });
     return token.accessToken;
