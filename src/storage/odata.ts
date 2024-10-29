@@ -52,7 +52,7 @@ function getOdataFilterStatement<DataType>(filter: IOdataFilter<DataType>) {
         : typeof filter.value === "string"
             ? `'${filter.value.replace(/'/g, "''")}'`
             : filter.value instanceof Date
-                ? `datetime'${filter.value.toISOString()}'`
+                ? `'${filter.value.toISOString()}'`
                 : `${filter.value}`;
 
     if (filter.operator === ODataOperators.startswith)
