@@ -1,5 +1,5 @@
 import { isNullOrEmptyString } from "@kwiz/common";
-import { AxiosRequestConfig } from "axios";
+import { AxiosError, AxiosRequestConfig } from "axios";
 import { Agent, globalAgent } from "https";
 
 type axiosConfigOptions = {
@@ -29,4 +29,17 @@ export function getAxiosConfig(token?: string, options?: axiosConfigOptions) {
         }
     }
     return config;
+}
+
+export function getAxiosErrorData(error: AxiosError) {
+    let code = error.code || "Unknown";
+    let errorMessage = error.message || "Unspecified error";
+    if (error && error.response && error.response.data && error.response.data["odata.error"]) {
+        let errorData: { code: string; message: { value: string; }; } = error.response.data["odata.error"];
+        if (errorData.message && errorData.message.value)
+            errorMessage = errorData.message.value;
+        if (errorData && errorData.code)
+            code = errorData.code;
+    }
+    return { code: code, message: errorMessage };
 }
