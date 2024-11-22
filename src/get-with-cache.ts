@@ -10,7 +10,7 @@ export async function getWithCache<T>(worker: () => Promise<{ success: boolean; 
     /** must be unique for your call! function name, and parameters */
     cacheKey: string;
     forceRefresh?: boolean;
-}) {
+}): Promise<T> {
     const now = new Date();
     //purge old values
     Object.keys($$cache).forEach(key => {
