@@ -31,7 +31,7 @@ interface IODataError {
         }
     }
 }
-type operationResult<T = never> = { success: true; result?: T; errorCode?: string; } | { success: false; result?: T; errorCode: string; };
+export type TableOperationResult<T = never> = { success: true; result?: T; errorCode?: string; } | { success: false; result?: T; errorCode: string; };
 
 type TableEntityBase = {
     /**
@@ -49,7 +49,7 @@ export type TableEntityType<DataType extends TableEntityBase> = {
     [P in keyof DataType]: string | boolean | Date | number;
 };
 
-export async function findTable(tableName: string): Promise<operationResult> {
+export async function findTable(tableName: string): Promise<TableOperationResult> {
     const tableService = getTableService();
 
     let success = false;
@@ -105,7 +105,7 @@ export async function listTables() {
 //     return success;
 // }
 
-export async function ensureTable(tableName: string): Promise<operationResult> {
+export async function ensureTable(tableName: string): Promise<TableOperationResult> {
     const table = getTableClient(tableName);
     let success = false;
     let errorCode: string;
@@ -127,7 +127,7 @@ export async function ensureTable(tableName: string): Promise<operationResult> {
     return { success, errorCode };
 }
 
-export async function deleteTable(tableName: string): Promise<operationResult> {
+export async function deleteTable(tableName: string): Promise<TableOperationResult> {
     const table = getTableClient(tableName);
     let success = false;
     let errorCode: string;
@@ -153,7 +153,7 @@ export async function deleteTable(tableName: string): Promise<operationResult> {
 export async function getItems<DataType extends TableEntityBase & TableEntityType<DataType>>(tableName: string, options?: {
     filterStatment?: IOdataFilterStatement<DataType>;
     postFilter?: (item: DataType) => boolean;
-}): Promise<operationResult<DataType[]>> {
+}): Promise<TableOperationResult<DataType[]>> {
     const table = getTableClient(tableName);
     let success = true;
     let errorCode: string;
@@ -185,7 +185,7 @@ export async function getItems<DataType extends TableEntityBase & TableEntityTyp
     return { success, errorCode, result };
 }
 
-export async function addItem<DataType extends TableEntityBase & TableEntityType<DataType>>(tableName: string, item: DataType): Promise<operationResult> {
+export async function addItem<DataType extends TableEntityBase & TableEntityType<DataType>>(tableName: string, item: DataType): Promise<TableOperationResult> {
     const table = getTableClient(tableName);
     let success = false;
     let errorCode: string;
@@ -206,7 +206,7 @@ export async function addItem<DataType extends TableEntityBase & TableEntityType
     return { success, errorCode };
 }
 
-export async function deleteItem(tableName: string, partitionKey: string, rowKey: string): Promise<operationResult> {
+export async function deleteItem(tableName: string, partitionKey: string, rowKey: string): Promise<TableOperationResult> {
     const table = getTableClient(tableName);
     let success = false;
     let errorCode: string;
@@ -233,7 +233,7 @@ export async function deleteItem(tableName: string, partitionKey: string, rowKey
 
 export async function upsertItem<DataType extends TableEntityBase & TableEntityType<DataType>>(tableName: string, item: DataType, options?: {
     mode?: UpdateMode
-}): Promise<operationResult> {
+}): Promise<TableOperationResult> {
     const table = getTableClient(tableName);
     let success = false;
     let errorCode: string;
