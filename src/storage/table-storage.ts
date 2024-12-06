@@ -31,6 +31,7 @@ interface IODataError {
         }
     }
 }
+type operationResult<T = never> = { success: true; result?: T; errorCode?: string; } | { success: false; result?: T; errorCode: string; };
 
 type TableEntityBase = {
     /**
@@ -48,10 +49,10 @@ export type TableEntityType<DataType extends TableEntityBase> = {
     [P in keyof DataType]: string | boolean | Date | number;
 };
 
-export async function findTable(tableName: string) {
+export async function findTable(tableName: string): Promise<operationResult> {
     const tableService = getTableService();
 
-    let found = false;
+    let success = false;
     try {
         const tables = tableService.listTables({
             queryOptions: {
@@ -60,12 +61,12 @@ export async function findTable(tableName: string) {
             }
         });
         for await (const table of tables) {
-            found = true;
+            success = true;
         }
     } catch (e) {
         //console.log(e);
     }
-    return found;
+    return { success, errorCode: success ? undefined : "Not found" };
 }
 
 export async function listTables() {
@@ -104,48 +105,58 @@ export async function listTables() {
 //     return success;
 // }
 
-export async function ensureTable(tableName: string) {
+export async function ensureTable(tableName: string): Promise<operationResult> {
     const table = getTableClient(tableName);
     let success = false;
+    let errorCode: string;
     try {
         await table.createTable({
             onResponse: raw => {
                 let error = isError(raw);
-                success = error.isError !== true || error.message === "TableAlreadyExists";
-                //if (error.isError) console.error(error.message);
+                success = error.isError !== true || error.errorCode === "TableAlreadyExists";
+                if (error.isError) {
+                    console.error(error.errorCode);
+                    errorCode = error.errorCode;
+                }
             }
         });
     } catch (e) {
         //console.error(e);
     }
 
-    return success;
+    return { success, errorCode };
 }
 
-export async function deleteTable(tableName: string) {
+export async function deleteTable(tableName: string): Promise<operationResult> {
     const table = getTableClient(tableName);
     let success = false;
+    let errorCode: string;
     try {
         await table.deleteTable({
             onResponse: raw => {
                 let error = isError(raw);
                 success = error.isError !== true;
-                //if (error.isError) console.log(error.message);
+                if (error.isError) {
+                    console.error(error.errorCode);
+                    errorCode = error.errorCode;
+                }
             }
         });
     } catch (e) {
         //console.log(e);
     }
 
-    return success;
+    return { success, errorCode };
 }
 
 //https://github.com/Azure/azure-sdk-for-js/blob/main/sdk/tables/data-tables/samples/v13/typescript/src/queryEntities.ts
 export async function getItems<DataType extends TableEntityBase & TableEntityType<DataType>>(tableName: string, options?: {
     filterStatment?: IOdataFilterStatement<DataType>;
     postFilter?: (item: DataType) => boolean;
-}) {
+}): Promise<operationResult<DataType[]>> {
     const table = getTableClient(tableName);
+    let success = true;
+    let errorCode: string;
     let result: DataType[] = [];
     try {
         let o: ListTableEntitiesOptions;
@@ -168,35 +179,48 @@ export async function getItems<DataType extends TableEntityBase & TableEntityTyp
         }
     } catch (e) {
         //console.log(e);
+        success = false;
+        errorCode = "Could not get items";
     }
-    return result;
+    return { success, errorCode, result };
 }
 
-export async function addItem<DataType extends TableEntityBase & TableEntityType<DataType>>(tableName: string, item: DataType) {
+export async function addItem<DataType extends TableEntityBase & TableEntityType<DataType>>(tableName: string, item: DataType): Promise<operationResult> {
     const table = getTableClient(tableName);
     let success = false;
+    let errorCode: string;
     try {
         let result = await table.createEntity(item, {
             onResponse: raw => {
                 let error = isError(raw);
                 success = error.isError !== true;
-                //if (error.isError) console.log(error.message);
+                if (error.isError) {
+                    console.error(error.errorCode);
+                    errorCode = error.errorCode;
+                }
             }
         });
         //console.log(result);
         success = true;
     } catch (e) { success = false; }
-    return success;
+    return { success, errorCode };
 }
 
-export async function deleteItem(tableName: string, partitionKey: string, rowKey: string) {
+export async function deleteItem(tableName: string, partitionKey: string, rowKey: string): Promise<operationResult> {
     const table = getTableClient(tableName);
     let success = false;
+    let errorCode: string;
+
     try {
         let result = await table.deleteEntity(partitionKey, rowKey, {
             onResponse: raw => {
                 let error = isError(raw);
-                success = error.isError !== true || error.message === "ResourceNotFound";
+                //error not found is still a success for delete action
+                success = error.isError !== true || error.errorCode === "ResourceNotFound";
+                if (error.isError) {
+                    console.error(error.errorCode);
+                    errorCode = error.errorCode;
+                }
             }
         });
         //console.log(result);
@@ -204,20 +228,24 @@ export async function deleteItem(tableName: string, partitionKey: string, rowKey
     } catch (e) {
         //success = false;
     }
-    return success;
+    return { success, errorCode };
 }
 
 export async function upsertItem<DataType extends TableEntityBase & TableEntityType<DataType>>(tableName: string, item: DataType, options?: {
     mode?: UpdateMode
-}) {
+}): Promise<operationResult> {
     const table = getTableClient(tableName);
     let success = false;
+    let errorCode: string;
     try {
         let result = await table.upsertEntity(item, options?.mode || "Replace", {
             onResponse: raw => {
                 let error = isError(raw);
                 success = error.isError !== true;
-                //if (error.isError) console.log(error.message);
+                if (error.isError) {
+                    console.error(error.errorCode);
+                    errorCode = error.errorCode;
+                }
             }
         });
         //console.log(result);
@@ -226,13 +254,13 @@ export async function upsertItem<DataType extends TableEntityBase & TableEntityT
         console.error(e);
         success = false;
     }
-    return success;
+    return { success, errorCode };
 }
 
 export class Table<KeysType extends TableEntityBase,
     GetKeysParam,
     SavedRow extends KeysType & TableEntityType<SavedRow>,
-    ParsedRow = SavedRow>{
+    ParsedRow = SavedRow> {
     private tableName: string;
     private transform: {
         save: (parsed: ParsedRow, table: Table<KeysType, GetKeysParam, SavedRow, ParsedRow>) => SavedRow;
@@ -266,8 +294,8 @@ export class Table<KeysType extends TableEntityBase,
         filterStatment?: IOdataFilterStatement<SavedRow>;
         postFilter?: (item: SavedRow) => boolean;
     }) {
-        let items = await getItems<SavedRow>(this.tableName, options);
-        return items.map(i => this.transform.load(i, this));
+        let itemsResult = await getItems<SavedRow>(this.tableName, options);
+        return { ...itemsResult, result: itemsResult.result.map(i => this.transform.load(i, this)) };
     }
     public async addItem(item: ParsedRow) {
         await this.ensure();
@@ -292,17 +320,17 @@ export class Table<KeysType extends TableEntityBase,
 
 function isError(raw: FullOperationResponse) {
     let isError = false;
-    let message: string = null;
+    let errorCode: string = null;
 
     //201 - table created successfully
     //204 - entity created successfully
     //409 - table/entity already exists
-    //400 - table name not allowed
+    //400 - table name not allowed / Property value too large
     //404 - TableNotFound when adding item
     if (raw.status >= 400) {
         isError = true;
         let error = raw.parsedBody as IODataError;
-        message = error && error.odataError && !isNullOrEmptyString(error.odataError.code)
+        errorCode = error && error.odataError && !isNullOrEmptyString(error.odataError.code)
             ? error.odataError.code
             : `Unknown error`;//for some errors like table name too short, error code is empty
     }
@@ -310,5 +338,5 @@ function isError(raw: FullOperationResponse) {
         isError = false;
     }
 
-    return { isError, message };
+    return { isError, errorCode };
 }
