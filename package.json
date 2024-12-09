@@ -69,7 +69,7 @@
   "dependencies": {
     "@azure/data-tables": "^13.2.2",
     "@azure/msal-node": "^2.6.4",
-    "@kwiz/common": "^1.0.19",
+    "@kwiz/common": "^1.0.97",
     "axios": "^1.6.7",
     "esbuild": "^0.19.12",
     "get-tsconfig": "^4.7.2",

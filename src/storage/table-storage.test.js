@@ -2,7 +2,7 @@ import assert from 'assert/strict';
 import test from 'node:test';
 import { IsAzuriteRunning } from "./common";
 import { ODataOperators } from "./odata";
-import { ConfigureTableStorage, Table, addItem, ensureTable } from "./table-storage";
+import { ConfigureTableStorage, Table, addItem, ensureTable, overflowColumnValue, restoreOverflowColumnValue } from "./table-storage";
 
 test('testTableStorage', async t => {
     if (!(await IsAzuriteRunning())) {
@@ -132,4 +132,19 @@ test('testTableStorage', async t => {
     //cleanup
     result = await table.delete();
     await t.test("Delete table", t => assert.strictEqual(result, true));
+});
+
+
+test('testTableStorage', async t => {
+    let item = { title: "test1", test: "abc123def456" };
+    let withOverflow = overflowColumnValue(item, "test", 3);
+    await t.test("Test overflow column", t => assert.strictEqual(JSON.stringify(withOverflow), JSON.stringify({
+        title: "test1",
+        test: "abc",
+        test2: "123",
+        test3: "def",
+        test4: "456"
+    })));
+
+    await t.test("Test restore overflow column", t => assert.strictEqual(JSON.stringify(restoreOverflowColumnValue(withOverflow, "test")), JSON.stringify(item)));
 });

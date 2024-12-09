@@ -5,7 +5,7 @@
 //https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite?tabs=visual-studio-code
 import { FullOperationResponse } from "@azure/core-client";
 import { ListTableEntitiesOptions, TableClient, TableServiceClient, UpdateMode, odata } from "@azure/data-tables";
-import { isNullOrEmptyString, isNullOrUndefined } from "@kwiz/common";
+import { IDictionary, isNotEmptyArray, isNotEmptyString, isNullOrEmptyString, isNullOrUndefined, isNumber, splitString } from "@kwiz/common";
 import { IOdataFilterStatement, getOdataFilter } from "./odata";
 
 var connectionString: string = null;
@@ -339,4 +339,47 @@ function isError(raw: FullOperationResponse) {
     }
 
     return { isError, errorCode };
+}
+
+export const tableColumnLengthLimit = 31999;
+export function overflowColumnValue<T = IDictionary<any>>(item: T, longProps: string | string[], overrideLimit?: number): T {
+    let limit = isNumber(overrideLimit) && overrideLimit > 0 ? overrideLimit : tableColumnLengthLimit;
+    let columns: IDictionary<string> = {};
+    const properties = !Array.isArray(longProps) ? [longProps] : longProps;
+    properties.forEach(propertyName => {
+        let value = item[propertyName];
+        if (isNotEmptyString(value)) {
+            let splitValue = splitString(value, { maxLength: limit });
+            splitValue.forEach((v, i) => {
+                //form, form2, form3...
+                let key = i === 0 ? propertyName : `${propertyName}${i + 1}`;
+                columns[key] = v;
+            });
+        }
+    });
+
+    if (isNotEmptyArray(Object.keys(columns)))
+        item = { ...item, ...columns };
+
+    return item;
+}
+export function restoreOverflowColumnValue<T = IDictionary<any>>(item: T, longProps: string | string[]): T {
+    const properties = !Array.isArray(longProps) ? [longProps] : longProps;
+    properties.forEach(propertyName => {
+        let result: string = item[propertyName];
+        if (isNotEmptyString(result)) {
+            let startIndex = 2;
+            let key = `${propertyName}${startIndex}`;
+            //restore from overflow
+            while (isNotEmptyString(item[key])) {
+                result += item[key];
+                delete item[key];
+
+                startIndex++;
+                key = `${propertyName}${startIndex}`;
+            }
+        }
+        item[propertyName] = result;
+    });
+    return item;
 }
