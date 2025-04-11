@@ -1,2 +1,6 @@
 node_modules/
 tsconfig.json
+.madgerc
+fix-folder-imports.js
+.github/
+src/
