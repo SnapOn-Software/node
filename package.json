@@ -27,7 +27,8 @@
     "link-local-common": "npm link @kwiz/common",
     "reindex-project": "cti create ./src -i _dependencies -w -b -n -o exports-index.ts && node fix-folder-imports.js",
     "install-packages": "npm install azurite -g && npm ci",
-    "startDevStorage": "azurite -s -l"
+    "startDevStorage": "azurite -s -l",
+    "clear-npm-cache": "npm cache clean --force"
   },
   "repository": {
     "type": "git",
