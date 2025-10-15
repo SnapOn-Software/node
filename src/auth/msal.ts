@@ -115,3 +115,9 @@ export async function GetMSALUserToken(tenantInfo: ITenantInfo, auth: AuthContex
     info.redirect(loginUrl);
     return null;
 }
+
+export interface iMSALUseTokenOptions {
+    /* use this token - if not provided, will use app-only token */
+    token?: string;
+    clearTokenCache?: boolean;
+}
