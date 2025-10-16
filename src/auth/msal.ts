@@ -61,8 +61,10 @@ export interface iUserTokenRequestInfo {
     state?: string;
     /** redeem a code from redirect  */
     code?: string;
-    /** request a new token silently from account cache */
-    account?: iUserTokenAccountInfo;
+    // this is used for client side, when there is local cache.
+    // this flow is not relevant for server side, where there is no cache or cache is for different users/tenants
+    // /** request a new token silently from account cache */
+    // account?: iUserTokenAccountInfo;
 }
 
 /** Get user token.
@@ -79,23 +81,23 @@ export async function GetMSALUserToken(tenantInfo: ITenantInfo, auth: AuthContex
         app.clearCache();
 
     let error: string;
-    if (info.account) {
-        try {
-            const result = await app.acquireTokenSilent({
-                account: info.account,
-                scopes: info.scopes,
-                redirectUri: info.redirectUri
-            });
-            return {
-                success: true,
-                accessToken: result.accessToken,
-                account: result.account
-            }
-        } catch (e) {
-            logger.error(e);
-            error = `Could not get token for account: ${GetError(e)}`;
-        }
-    }
+    // if (info.account) {
+    //     try {
+    //         const result = await app.acquireTokenSilent({
+    //             account: info.account,
+    //             scopes: info.scopes,
+    //             redirectUri: info.redirectUri
+    //         });
+    //         return {
+    //             success: true,
+    //             accessToken: result.accessToken,
+    //             account: result.account
+    //         }
+    //     } catch (e) {
+    //         logger.error(e);
+    //         error = `Could not get token for account: ${GetError(e)}`;
+    //     }
+    // }
     if (info.code) {
         try {
             const result = await app.acquireTokenByCode({
