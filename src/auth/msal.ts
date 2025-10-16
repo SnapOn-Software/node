@@ -1,5 +1,5 @@
 import { ConfidentialClientApplication } from "@azure/msal-node";
-import { AuthContextType, AuthenticationModes, CommonLogger, ITenantInfo } from "@kwiz/common";
+import { AuthContextType, AuthenticationModes, CommonLogger, GetError, ITenantInfo } from "@kwiz/common";
 //find tenant id? https://login.microsoftonline.com/kwizcom.onmicrosoft.com/.well-known/openid-configuration
 //https://stackoverflow.com/questions/54771270/msal-ad-token-not-valid-with-sharepoint-online-csom
 
@@ -59,11 +59,9 @@ export interface iUserTokenRequestInfo {
     redirectUri: string;
     /** pass a state to the login uri page to validate and/or restore the user's app state (page he came from?) */
     state?: string;
-    /** a redirect handler in case we need to take the user to the login page */
-    redirect: (url: string) => void;
-    /** code you got from redirectUri  */
+    /** redeem a code from redirect  */
     code?: string;
-    /** if you kept a user account from previous GetMSALUserToken result - try to use it to get a silent token/refreshed token */
+    /** request a new token silently from account cache */
     account?: iUserTokenAccountInfo;
 }
 
@@ -72,13 +70,15 @@ export interface iUserTokenRequestInfo {
  * client secret not supported by SharePoint, must use certificate */
 export async function GetMSALUserToken(tenantInfo: ITenantInfo, auth: AuthContextType, info: iUserTokenRequestInfo, clearCache?: boolean)
     : Promise<{
+        success: true;
         accessToken: string;
         account: iUserTokenAccountInfo;
-    } | null> {
+    } | { success: false; redirect: string; error?: string; }> {
     const app = GetApp(tenantInfo, auth);
     if (clearCache)
         app.clearCache();
 
+    let error: string;
     if (info.account) {
         try {
             const result = await app.acquireTokenSilent({
@@ -87,11 +87,13 @@ export async function GetMSALUserToken(tenantInfo: ITenantInfo, auth: AuthContex
                 redirectUri: info.redirectUri
             });
             return {
+                success: true,
                 accessToken: result.accessToken,
                 account: result.account
             }
         } catch (e) {
             logger.error(e);
+            error = `Could not get token for account: ${GetError(e)}`;
         }
     }
     if (info.code) {
@@ -103,17 +105,18 @@ export async function GetMSALUserToken(tenantInfo: ITenantInfo, auth: AuthContex
                 state: info.state
             });
             return {
+                success: true,
                 accessToken: result.accessToken,
                 account: result.account
             }
         } catch (e) {
             logger.error(e);
+            error = `Could not redeem code: ${GetError(e)}`;
         }
     }
 
     const loginUrl = await app.getAuthCodeUrl(info);
-    info.redirect(loginUrl);
-    return null;
+    return { success: false, redirect: loginUrl, error };
 }
 
 export interface iMSALUseTokenOptions {
