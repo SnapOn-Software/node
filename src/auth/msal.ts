@@ -54,7 +54,11 @@ export interface iUserTokenAccountInfo {
     name?: string;
 }
 export interface iUserTokenRequestInfo {
-    scopes: string[];
+    /** graphScope or sharepoint site https://microsoft.sharepoint.com or tenant site https://[tenant].sharepoint.com 
+     * code will append /.default to the sent scope
+     * cannot combine graph and sharepoint
+     */
+    scope: string;
     /** a page in your app that will get the code in query after user logs in, call GetMSALUserToken with that code */
     redirectUri: string;
     /** pass a state to the login uri page to validate and/or restore the user's app state (page he came from?) */
@@ -102,7 +106,7 @@ export async function GetMSALUserToken(tenantInfo: ITenantInfo, auth: AuthContex
         try {
             const result = await app.acquireTokenByCode({
                 code: info.code,
-                scopes: info.scopes,
+                scopes: [`${info.scope}/.default`],
                 redirectUri: info.redirectUri,
                 state: info.state
             });
@@ -117,7 +121,10 @@ export async function GetMSALUserToken(tenantInfo: ITenantInfo, auth: AuthContex
         }
     }
 
-    const loginUrl = await app.getAuthCodeUrl(info);
+    const loginUrl = await app.getAuthCodeUrl({
+        ...info,
+        scopes: [`${info.scope}/.default`]
+    });
     return { success: false, redirect: loginUrl, error };
 }
 
