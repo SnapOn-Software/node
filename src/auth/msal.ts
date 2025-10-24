@@ -8,7 +8,7 @@ const logger = new CommonLogger("msal");
 var apps: { [tenant: string]: ConfidentialClientApplication } = {};
 
 function GetApp(tenantInfo: ITenantInfo, auth: AuthContextType) {
-    let key = `${tenantInfo.idOrName}|${auth.authenticationMode}`
+    let key = `${tenantInfo.idOrName}|${auth.authenticationMode}|${auth.clientId}`
     if (!apps[key]) {
         auth.authenticationMode === AuthenticationModes.clientSecret
             ? apps[key] = new ConfidentialClientApplication({
