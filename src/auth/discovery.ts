@@ -1,14 +1,15 @@
-import { $AzureEnvironment, GetAzureADLoginEndPoint, GetEnvironmentFromACSEndPoint, ITenantInfo, isNullOrEmptyString, isValidGuid, promiseOnce } from "@kwiz/common";
+import { AzureEnvironment, GetAzureADLoginEndPoint, GetEnvironmentFromACSEndPoint, ITenantInfo, isNullOrEmptyString, isValidGuid, promiseOnce } from "@kwiz/common";
 import axios from "axios";
 
 export function DiscoverTenantInfo(hostName: string) {
     hostName = hostName.toLowerCase();
     return promiseOnce(`DiscoverTenantInfo|${hostName}`, async () => {
         let data: ITenantInfo = {
-            environment: $AzureEnvironment.Production,
+            environment: AzureEnvironment.Production,
             idOrName: null,
             authorityUrl: null,
-            valid: false
+            valid: false,
+            msGraphHost: null
         };
 
         let tenantId: string = null;
@@ -53,6 +54,8 @@ export function DiscoverTenantInfo(hostName: string) {
 
             data.authorityUrl = `${GetAzureADLoginEndPoint(data.environment)}/${data.idOrName}`;
             data.valid = true;
+
+            data.msGraphHost = config.data.msgraph_host;
         }
         catch (e) { }
 
