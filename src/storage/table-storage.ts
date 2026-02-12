@@ -5,8 +5,10 @@
 //https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite?tabs=visual-studio-code
 import { FullOperationResponse } from "@azure/core-client";
 import { ListTableEntitiesOptions, TableClient, TableServiceClient, UpdateMode, odata } from "@azure/data-tables";
-import { IDictionary, isNotEmptyArray, isNotEmptyString, isNullOrEmptyString, isNullOrUndefined, isNumber, splitString } from "@kwiz/common";
+import { CommonLogger, IDictionary, isNotEmptyArray, isNotEmptyString, isNullOrEmptyString, isNullOrUndefined, isNumber, splitString } from "@kwiz/common";
 import { IOdataFilterStatement, getOdataFilter } from "./odata";
+
+const logger = new CommonLogger("table-storage");
 
 var connectionString: string = null;
 export function ConfigureTableStorage(config: { connectionString: string; }) {
@@ -163,6 +165,7 @@ export async function getItems<DataType extends TableEntityBase & TableEntityTyp
         if (options) {
             if (!isNullOrUndefined(options.filterStatment)) {
                 let filterStatment = getOdataFilter(options.filterStatment);
+                logger.log(filterStatment);
                 if (!isNullOrEmptyString(filterStatment))
                     o = {
                         queryOptions: {
@@ -232,6 +235,7 @@ export async function deleteItem(tableName: string, partitionKey: string, rowKey
 }
 
 export async function upsertItem<DataType extends TableEntityBase & TableEntityType<DataType>>(tableName: string, item: DataType, options?: {
+    /** default: replace */
     mode?: UpdateMode
 }): Promise<TableOperationResult> {
     const table = getTableClient(tableName);
@@ -303,6 +307,7 @@ export class Table<KeysType extends TableEntityBase,
         return addItem<SavedRow>(this.tableName, this.transform.save(item, this));
     }
     public async upsertItem(item: ParsedRow, options?: {
+        /** default: replace */
         mode?: UpdateMode
     }) {
         await this.ensure();

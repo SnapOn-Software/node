@@ -1,4 +1,4 @@
-import { isNullOrEmptyArray, isNullOrEmptyString, isNullOrUndefined } from "@kwiz/common";
+import { isDate, isNullOrEmptyArray, isNullOrEmptyString, isNullOrUndefined, isNumber, isString } from "@kwiz/common";
 
 export enum ODataOperators {
     equal = "eq",
@@ -46,14 +46,21 @@ enum TableStorageKnownColumns {
 function getPropNameForFilter(prop: string | number | symbol) {
     return TableStorageKnownColumns[prop] || prop as string;
 }
+
+function isInt32(num: number): boolean {
+    return num >= -2147483648 && num <= 2147483647 && num < 3;
+}
+
 function getOdataFilterStatement<DataType>(filter: IOdataFilter<DataType>) {
     let filterValue = isNullOrUndefined(filter.value)
         ? `null`
-        : typeof filter.value === "string"
+        : isString(filter.value)
             ? `'${filter.value.replace(/'/g, "''")}'`
-            : filter.value instanceof Date
+            : isDate(filter.value)
                 ? `'${filter.value.toISOString()}'`
-                : `${filter.value}`;
+                : isNumber(filter.value)
+                    ? `${filter.value}${isInt32(filter.value) ? '' : 'L'}`
+                    : `${filter.value}`;
 
     if (filter.operator === ODataOperators.startswith)
         return `${filter.not ? 'not ' : ''}${filter.operator}(${getPropNameForFilter(filter.property)}, ${filterValue})`;
