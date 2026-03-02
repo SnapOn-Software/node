@@ -14,7 +14,7 @@
   },
   "scripts": {
     "watch": "tsc-watch --onSuccess \"yalc push\"",
-    "build": "npm run reindex-project && npm run test && tsc",
+    "build": "npm run prestart && npm run reindex-project && npm run test && tsc",
     "build-explain": "tsc --explainFiles",
     "check-dependencies": "madge --circular ./src",
     "yalc-link": "yalc publish",
@@ -29,7 +29,8 @@
     "reindex-project": "cti create ./src -i _dependencies -w -b -n -o exports-index.ts && node fix-folder-imports.js",
     "install-packages": "npm install azurite -g && npm ci",
     "startDevStorage": "azurite -s -l",
-    "clear-npm-cache": "npm cache clean --force"
+    "clear-npm-cache": "npm cache clean --force",
+    "prestart": "check-node-version --node 22"
   },
   "repository": {
     "type": "git",
@@ -61,10 +62,14 @@
   },
   "packageManager": "npm@9.5.1",
   "devDependencies": {
+    "@jsforce/jsforce-node": "^3.10.14",
     "@types/node": "^18.19.21",
+    "@types/nodemailer": "^7.0.9",
+    "check-node-version": "^4.2.1",
     "create-ts-index": "^1.14.0",
     "fs-extra": "^11.2.0",
     "madge": "^6.1.0",
+    "nodemailer": "^8.0.1",
     "tsc-watch": "^7.2.0",
     "tsx": "^4.7.1",
     "typescript": "^5.3.3"
@@ -77,5 +82,17 @@
     "esbuild": "^0.19.12",
     "get-tsconfig": "^4.7.2",
     "resolve-pkg-maps": "^1.0.0"
+  },
+  "peerDependencies": {
+    "@jsforce/jsforce-node": "^3.10.14",
+    "nodemailer": "^8.0.1"
+  },
+  "peerDependenciesMeta": {
+    "@jsforce/jsforce-node": {
+      "optional": true
+    },
+    "nodemailer": {
+      "optional": true
+    }
   }
 }
