@@ -84,14 +84,10 @@
     "resolve-pkg-maps": "^1.0.0"
   },
   "peerDependencies": {
-    "@jsforce/jsforce-node": "^3.10.14",
-    "nodemailer": "^8.0.1"
+    "@jsforce/jsforce-node": "^3.10.14"
   },
   "peerDependenciesMeta": {
     "@jsforce/jsforce-node": {
-      "optional": true
-    },
-    "nodemailer": {
       "optional": true
     }
   }
