@@ -1,8 +1,10 @@
 import { ConsoleLogger, GetError } from "@kwiz/common";
 import { createTransport } from "nodemailer";
-import Mail from "nodemailer/lib/mailer";
 
-export type mailType = Mail.Address | string;
+export type mailType = {
+    name: string;
+    address: string;
+} | string;
 export type mailsType = mailType | mailType[];
 export async function sendEmail(cfg: { login: string; password: string; }, info: {
     /** from address is always info */
