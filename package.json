@@ -73,14 +73,15 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
-    "nodemailer": "^8.0.1",
-    "@jsforce/jsforce-node": "^3.10.14",
     "@azure/data-tables": "^13.2.2",
     "@azure/msal-node": "^2.6.4",
+    "@azure/storage-blob": "^12.31.0",
+    "@jsforce/jsforce-node": "^3.10.14",
     "@kwiz/common": "^1.0.199",
     "axios": "^1.6.7",
     "esbuild": "^0.19.12",
     "get-tsconfig": "^4.7.2",
+    "nodemailer": "^8.0.1",
     "resolve-pkg-maps": "^1.0.0"
   },
   "peerDependencies": {
