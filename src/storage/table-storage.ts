@@ -116,7 +116,7 @@ export async function ensureTable(tableName: string): Promise<TableOperationResu
             onResponse: raw => {
                 let error = isError(raw);
                 success = error.isError !== true || error.errorCode === "TableAlreadyExists";
-                if (error.isError) {
+                if (!success) {
                     console.error(error.errorCode);
                     errorCode = error.errorCode;
                 }
@@ -269,6 +269,10 @@ export class Table<KeysType extends TableEntityBase,
     private transform: {
         save: (parsed: ParsedRow, table: Table<KeysType, GetKeysParam, SavedRow, ParsedRow>) => SavedRow;
         load: (saved: SavedRow, table: Table<KeysType, GetKeysParam, SavedRow, ParsedRow>) => ParsedRow;
+    }
+
+    public get Name() {
+        return this.tableName;
     }
 
     public getKeys: (p: GetKeysParam) => KeysType = null;
