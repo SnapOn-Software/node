@@ -62,7 +62,6 @@
   },
   "packageManager": "npm@9.5.1",
   "devDependencies": {
-    "@jsforce/jsforce-node": "^3.10.14",
     "@types/node": "^18.19.21",
     "@types/nodemailer": "^7.0.9",
     "check-node-version": "^4.2.1",
@@ -75,6 +74,7 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
+    "@jsforce/jsforce-node": "^3.10.14",
     "@azure/data-tables": "^13.2.2",
     "@azure/msal-node": "^2.6.4",
     "@kwiz/common": "^1.0.199",
