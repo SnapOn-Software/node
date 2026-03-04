@@ -1,5 +1,5 @@
 import { BlobServiceClient } from "@azure/storage-blob";
-import { apiResultType, GetError, isNotEmptyString, isNullOrEmptyString, isString, jsonParse, jsonStringify } from "@kwiz/common";
+import { apiResultType, buffersToArrayBuffer, GetError, isNotEmptyString, isNullOrEmptyString, isString, jsonParse, jsonStringify } from "@kwiz/common";
 
 var connectionString: string = null;
 export function ConfigureBlobStorage(config: { connectionString: string; }) {
@@ -25,8 +25,8 @@ export async function GetBlobAsJSON<Type>(container: string, name: string): Prom
 }
 
 /** only lowercase letters, 3-63, numbers or - */
-export async function GetBlobAsBuffer(container: string, name: string): Promise<apiResultType<Buffer<ArrayBuffer>>> {
-    return GetBlob<Buffer<ArrayBuffer>>(container, name, "buffer");
+export async function GetBlobAsBuffer(container: string, name: string): Promise<apiResultType<ArrayBuffer>> {
+    return GetBlob<ArrayBuffer>(container, name, "buffer");
 }
 
 /** only lowercase letters, 3-63, numbers or - */
@@ -101,7 +101,7 @@ function getBlobClient() {
     if (isNullOrEmptyString(connectionString)) throw Error("Call ConfigureTableStorage first");
     return BlobServiceClient.fromConnectionString(connectionString);
 }
-async function GetBlob<FileDataType = string | Buffer<ArrayBuffer>>(container: string, name: string, as: "string" | "buffer"): Promise<apiResultType<FileDataType>> {
+async function GetBlob<FileDataType = string | ArrayBuffer>(container: string, name: string, as: "string" | "buffer"): Promise<apiResultType<FileDataType>> {
     try {
         const blobServiceClient = getBlobClient();
 
@@ -118,14 +118,14 @@ async function GetBlob<FileDataType = string | Buffer<ArrayBuffer>>(container: s
         return { success: false, error: GetError(e) };
     }
 }
-async function streamToBuffer(stream: NodeJS.ReadableStream): Promise<Buffer<ArrayBuffer>> {
-    const result = await new Promise<Buffer<ArrayBuffer>>((resolve, reject) => {
+async function streamToBuffer(stream: NodeJS.ReadableStream): Promise<ArrayBuffer> {
+    const result = await new Promise<ArrayBuffer>((resolve, reject) => {
         const chunks: Buffer[] = [];
         stream.on("data", (data) => {
             chunks.push(Buffer.isBuffer(data) ? data : Buffer.from(data));
         });
         stream.on("end", () => {
-            resolve(Buffer.concat(chunks));
+            resolve(buffersToArrayBuffer(chunks));
         });
         stream.on("error", reject);
     });
