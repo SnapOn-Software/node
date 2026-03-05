@@ -40,7 +40,7 @@ export async function SaveBlob(container: string, name: string, content: string 
             throw Error(createContainerResponse.errorCode);
 
         const blockBlobClient = containerClient.getBlockBlobClient(name);
-        const uploadBlobResponse = await blockBlobClient.upload(content, isString(content) ? content.length : content.byteLength,);
+        const uploadBlobResponse = await blockBlobClient.upload(content, isString(content) ? content.length : content.byteLength);
         if (isNotEmptyString(uploadBlobResponse.errorCode))
             throw Error(uploadBlobResponse.errorCode);
         return { success: true, value: uploadBlobResponse.requestId };
@@ -133,5 +133,5 @@ async function streamToBuffer(stream: NodeJS.ReadableStream): Promise<ArrayBuffe
 }
 async function streamToString(stream: NodeJS.ReadableStream): Promise<string> {
     const result = await streamToBuffer(stream);
-    return result.toString();
+    return Buffer.from(result).toString();
 }
