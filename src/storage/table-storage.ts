@@ -6,7 +6,7 @@
 import { FullOperationResponse } from "@azure/core-client";
 import { ListTableEntitiesOptions, TableClient, TableServiceClient, UpdateMode, odata } from "@azure/data-tables";
 import { CommonLogger, IDictionary, isNotEmptyArray, isNotEmptyString, isNullOrEmptyString, isNullOrUndefined, isNumber, splitString } from "@kwiz/common";
-import { IOdataFilterStatement, getOdataFilter } from "./odata";
+import { IOdataFilterStatement, ODataJoinOperators, ODataOperators, getOdataFilter } from "./odata";
 
 const logger = new CommonLogger("table-storage");
 
@@ -304,6 +304,24 @@ export class Table<KeysType extends TableEntityBase,
     }) {
         let itemsResult = await getItems<SavedRow>(this.tableName, options);
         return { ...itemsResult, result: itemsResult.result.map(i => this.transform.load(i, this)) };
+    }
+    public async getItemByKey(param: GetKeysParam): Promise<TableOperationResult<ParsedRow>> {
+        let keys = this.getKeys(param);
+        const res = await this.getItems({
+            filterStatment: {
+                filters: [
+                    { property: "partitionKey", operator: ODataOperators.equal, value: keys.partitionKey },
+                    { property: "rowKey", operator: ODataOperators.equal, value: keys.rowKey },
+                ],
+                join: ODataJoinOperators.and
+            }
+        });
+        if (res.success === true) {
+            if (res.result.length === 1)
+                return { success: true, result: res.result[0] };
+            else return { success: false, errorCode: 'Item not found' };
+        }
+        else return { success: false, errorCode: res.errorCode };
     }
     public async addItem(item: ParsedRow) {
         await this.ensure();
