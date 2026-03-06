@@ -1,4 +1,4 @@
-import { isNullOrEmptyString } from "@kwiz/common";
+import { isNotEmptyString, isNullOrEmptyString } from "@kwiz/common";
 import { AxiosError, AxiosRequestConfig } from "axios";
 import { Agent, globalAgent } from "https";
 
@@ -33,13 +33,22 @@ export function getAxiosConfig(token?: string, options?: axiosConfigOptions) {
 
 export function getAxiosErrorData(error: AxiosError) {
     let code = error.code || "Unknown";
-    let errorMessage = error.message || "Unspecified error";
-    if (error && error.response && error.response.data && error.response.data["odata.error"]) {
-        let errorData: { code: string; message: { value: string; }; } = error.response.data["odata.error"];
-        if (errorData.message && errorData.message.value)
-            errorMessage = errorData.message.value;
-        if (errorData && errorData.code)
-            code = errorData.code;
+    let message = error.message || "Unspecified error";
+    let data: string;
+    if (error && error.response && error.response.data) {
+        if (error.response.data["odata.error"]) {
+            let errorData: { code: string; message: { value: string; }; } = error.response.data["odata.error"];
+            if (errorData.message && errorData.message.value)
+                message = errorData.message.value;
+            if (errorData && errorData.code)
+                code = errorData.code;
+        } else if (isNotEmptyString(error.response.data)) {
+            data = error.response.data;
+        }
     }
-    return { code: code, message: errorMessage };
+    return {
+        code, message,
+        /** might contain sensitive information like tokens or connections */
+        data
+    };
 }
