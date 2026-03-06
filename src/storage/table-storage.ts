@@ -263,7 +263,7 @@ export async function upsertItem<DataType extends TableEntityBase & TableEntityT
 
 export class Table<KeysType extends TableEntityBase,
     GetKeysParam,
-    SavedRow extends KeysType & TableEntityType<SavedRow>,
+    SavedRow extends KeysType & TableEntityBase & TableEntityType<SavedRow>,
     ParsedRow = SavedRow> {
     private tableName: string;
     private transform: {
@@ -311,8 +311,8 @@ export class Table<KeysType extends TableEntityBase,
         let itemsResult = await getItems<SavedRow>(this.tableName, {
             filterStatment: {
                 filters: [
-                    { property: "partitionKey" as keyof SavedRow, operator: ODataOperators.equal, value: keys.partitionKey },
-                    { property: "rowKey" as keyof SavedRow, operator: ODataOperators.equal, value: keys.rowKey },
+                    { property: "partitionKey", operator: ODataOperators.equal, value: keys.partitionKey },
+                    { property: "rowKey", operator: ODataOperators.equal, value: keys.rowKey },
                 ],
                 join: ODataJoinOperators.and
             }
