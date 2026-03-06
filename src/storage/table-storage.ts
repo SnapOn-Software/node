@@ -305,23 +305,25 @@ export class Table<KeysType extends TableEntityBase,
         let itemsResult = await getItems<SavedRow>(this.tableName, options);
         return { ...itemsResult, result: itemsResult.result.map(i => this.transform.load(i, this)) };
     }
-    public async getItemByKey(param: GetKeysParam): Promise<TableOperationResult<ParsedRow>> {
+    public async getItemByKey(param: GetKeysParam) {
         let keys = this.getKeys(param);
-        const res = await this.getItems({
+
+        let itemsResult = await getItems<SavedRow>(this.tableName, {
             filterStatment: {
                 filters: [
-                    { property: "partitionKey", operator: ODataOperators.equal, value: keys.partitionKey },
-                    { property: "rowKey", operator: ODataOperators.equal, value: keys.rowKey },
+                    { property: "partitionKey" as keyof SavedRow, operator: ODataOperators.equal, value: keys.partitionKey },
+                    { property: "rowKey" as keyof SavedRow, operator: ODataOperators.equal, value: keys.rowKey },
                 ],
                 join: ODataJoinOperators.and
             }
         });
-        if (res.success === true) {
-            if (res.result.length === 1)
-                return { success: true, result: res.result[0] };
+
+        if (itemsResult.success === true) {
+            if (itemsResult.result.length === 1)
+                return { success: true, result: this.transform.load(itemsResult.result[0], this) };
             else return { success: false, errorCode: 'Item not found' };
         }
-        else return { success: false, errorCode: res.errorCode };
+        else return { success: false, errorCode: itemsResult.errorCode };
     }
     public async addItem(item: ParsedRow) {
         await this.ensure();
