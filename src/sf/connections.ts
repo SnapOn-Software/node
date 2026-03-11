@@ -1,4 +1,4 @@
-import jsforce, { Connection } from "@jsforce/jsforce-node";
+import * as jsforce from '@jsforce/jsforce-node';
 import { isNotEmptyString, jsonStringify } from "@kwiz/common";
 import { sfGetUserName } from "./actions";
 import { isf_cfg, isf_user_token, sf_instances } from "./types";
@@ -58,7 +58,7 @@ export async function sf_conn_app(cfg: isf_cfg, instanceUrl: string) {
         }
 
         //configure the connection
-        const conn = new Connection({
+        const conn = new jsforce.Connection({
             instanceUrl: token_json.instance_url,
             accessToken: token_json.access_token
         });
