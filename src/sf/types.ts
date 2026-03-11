@@ -4,7 +4,7 @@ import { DescribeGlobalSObjectResult } from "@jsforce/jsforce-node/lib/api/soap/
 import { isNotEmptyString, toArray } from "@kwiz/common";
 import { sf_metadata_field_type_info } from "./constants";
 
-export const sf_unknown_user = "Unknown User";
+export const sf_unknown_user = null;
 export const sf_throttle = 10;
 export const sf_instances = {
     default: "https://login.salesforce.com",

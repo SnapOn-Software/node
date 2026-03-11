@@ -87,7 +87,7 @@ export async function sf_conn_user(cfg: isf_cfg, userToken: isf_user_token) {
 /** your redirect page will get an authorization code. call sf_oauth2_authorize to exchange for an access token.
  * look for query params: code, error, error_description, state
  */
-export async function sf_signin_redirect(cfg: isf_cfg, state: string, sandbox?: boolean) {
+export function sf_signin_redirect(cfg: isf_cfg, state: string, sandbox?: boolean) {
     const redirectUrl = new jsforce.OAuth2(getOauth2Config(cfg, sandbox ? sf_instances.sandbox : sf_instances.default)).getAuthorizationUrl({
         //which page the user  came from
         state: jsonStringify(state)

@@ -6,7 +6,7 @@
 
 import { GetError, capitalizeFirstLetter, getNSSuitetalkApiHost, insBaseResponse, insSoapResponseError, insTokenInfo, tnsSoapRequest } from "@kwiz/common";
 import axios, { AxiosError, AxiosResponse, isAxiosError } from "axios";
-import { parseXml } from "../exports-index";
+import { parseXml } from "../utilities/xml";
 import { nsOAuth1 } from "./oauth1";
 
 export class NSSoapRequestTypes {
@@ -78,12 +78,12 @@ ${options && options.additionalHeaders || ""}
                 Accept: "application/xml"
             }
         });
-        const envelope = await parseXml<T>(axiosResponse.data);
+        const envelope = parseXml<T>(axiosResponse.data);
         return { envelope, axiosResponse };
     } catch (e) {
         if (isAxiosError(e)) {
             try {
-                const envelope = await parseXml<insSoapResponseError>(e.response.data);
+                const envelope = parseXml<insSoapResponseError>(e.response.data);
                 return {
                     error: true,
                     errorMessage: envelope.Body.Fault.faultstring,

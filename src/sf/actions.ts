@@ -2,8 +2,9 @@ import { SaveResult } from "@jsforce/jsforce-node";
 import { CustomField, SaveResult as upsertSaveResult } from "@jsforce/jsforce-node/lib/api/metadata";
 import { chunkArray, forEachAsync, GetError, IDictionary, iFileData, isNotEmptyString, isNullOrEmptyString, isNullOrUndefined } from "@kwiz/common";
 import { sf_custom_field_name_suffix } from "./constants";
-import { iSFEntity, iSFOrgInfo, sf_builtin_profiles, sf_conn, sf_field_ex, sf_field_value_types, sf_known_entities_type, sf_metadata_field_type, sf_metadata_field_types, sf_throttle, sf_unknown_user } from "./types";
+import { iSFEntity, iSFOrgInfo, sf_builtin_profiles, sf_conn, sf_field_ex, sf_field_value_types, sf_known_entities_type, sf_metadata_field_type, sf_metadata_field_types, sf_throttle } from "./types";
 
+/** returns the user's name, or null if user not found. */
 export async function sfGetUserName(conn: sf_conn) {
     try {
         let userId = conn.userInfo?.id;
@@ -18,12 +19,12 @@ export async function sfGetUserName(conn: sf_conn) {
         return ui.records[0].Name;
     } catch (e) {
         console.error(e);
-        return sf_unknown_user;
+        return null;
     }
 }
 export async function sfIsConnectionValid(conn: sf_conn) {
     const userName = await sfGetUserName(conn);
-    return userName !== sf_unknown_user;
+    return isNotEmptyString(userName);
 }
 
 
