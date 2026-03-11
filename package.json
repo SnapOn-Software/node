@@ -18,14 +18,13 @@
     "build-explain": "tsc --explainFiles",
     "check-dependencies": "madge --circular ./src",
     "yalc-link": "yalc publish",
-    "create-link": "npm link",
     "test": "node --import tsx --test src",
     "npm-v-patch": "npm version patch && git push origin main:main && git push --tags",
     "npm-v-major": "npm version major && git push origin main:main && git push --tags",
     "npm-publish": "npm publish --access public",
     "reset-repo": "git fetch origin && git reset --hard origin/main",
     "__update-kwiz-packages": "npm install @kwiz/common@latest",
-    "link-local-common": "npm link @kwiz/common",
+    "link-local-common": "yalc add @kwiz/common",
     "reindex-project": "cti create ./src -i _dependencies -w -b -n -o exports-index.ts && node fix-folder-imports.js",
     "install-packages": "npm install azurite -g && npm ci",
     "startDevStorage": "azurite -s -l",
@@ -64,6 +63,7 @@
   "devDependencies": {
     "@types/node": "^18.19.21",
     "@types/nodemailer": "^7.0.9",
+    "@types/xml2js": "^0.4.14",
     "check-node-version": "^4.2.1",
     "create-ts-index": "^1.14.0",
     "fs-extra": "^11.2.0",
@@ -77,12 +77,13 @@
     "@azure/msal-node": "^2.6.4",
     "@azure/storage-blob": "^12.31.0",
     "@jsforce/jsforce-node": "^3.10.14",
-    "@kwiz/common": "^1.0.207",
+    "@kwiz/common": "^1.0.211",
     "axios": "^1.6.7",
     "esbuild": "^0.19.12",
     "get-tsconfig": "^4.7.2",
     "nodemailer": "^8.0.1",
-    "resolve-pkg-maps": "^1.0.0"
+    "resolve-pkg-maps": "^1.0.0",
+    "xml2js": "^0.6.2"
   },
   "peerDependencies": {
     "@jsforce/jsforce-node": "^3.10.14"

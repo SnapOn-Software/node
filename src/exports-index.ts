@@ -2,6 +2,7 @@ export * from './SPO/exports-index';
 export * from './auth/exports-index';
 export * from './graph/exports-index';
 export * from './next-js/exports-index';
+export * from './ns/exports-index';
 export * from './sf/exports-index';
 export * from './storage/exports-index';
 export * from './utilities/exports-index';

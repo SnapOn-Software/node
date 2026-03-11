@@ -2,3 +2,5 @@ node_modules/
 dist/
 # Azurite artifacts
 __azurite_db*__.json
+yalc.lock
+.yalc
