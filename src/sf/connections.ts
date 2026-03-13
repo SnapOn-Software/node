@@ -13,7 +13,7 @@ function getOauth2Config(cfg: isf_cfg, instanceUrl: string) {
         clientSecret: cfg.clientSecret,
         redirectUri: cfg.redirectUri,
         loginUrl: loginUrl
-    }
+    };
 }
 
 interface ISFTokenSuccess {
