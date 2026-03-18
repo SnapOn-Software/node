@@ -13,7 +13,7 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "watch": "tsc-watch --onSuccess \"yalc push\"",
+    "watch": "tsc-watch --onSuccess \"yalc push --sig\"",
     "build": "npm run prestart && npm run reindex-project && npm run test && tsc",
     "build-explain": "tsc --explainFiles",
     "check-dependencies": "npx dpdm --no-tree --no-warning ./src/index.ts",
@@ -78,7 +78,7 @@
     "@azure/msal-node": "^2.6.4",
     "@azure/storage-blob": "^12.31.0",
     "@jsforce/jsforce-node": "^3.10.14",
-    "@kwiz/common": "^1.0.215",
+    "@kwiz/common": "^1.0.218",
     "axios": "^1.6.7",
     "esbuild": "^0.19.12",
     "get-tsconfig": "^4.7.2",

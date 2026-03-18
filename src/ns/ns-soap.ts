@@ -4,7 +4,7 @@
 //https://www.npmjs.com/package/wsdl-to-ts
 //https://system.netsuite.com/help/helpcenter/en_US/srbrowser/Browser2018_1/schema/record/address.html?mode=package
 
-import { GetError, capitalizeFirstLetter, getNSSuitetalkApiHost, insBaseResponse, insSoapResponseError, insTokenInfo, tnsSoapRequest } from "@kwiz/common";
+import { GetError, capitalizeFirstLetter, getNsHost, insBaseResponse, insSoapResponseError, insTokenInfo, tnsSoapRequest } from "@kwiz/common";
 import axios, { AxiosError, AxiosResponse, isAxiosError } from "axios";
 import { parseXml } from "../utilities/xml";
 import { nsOAuth1 } from "./oauth1";
@@ -31,7 +31,7 @@ export class NSSoapRequestTypes {
 export async function callNSSoap<T extends insBaseResponse>(ctx: insTokenInfo, requestType: NSSoapRequestTypes, payload: string, options?: {
     additionalHeaders?: string;
 }): Promise<{ error?: false, envelope: T, axiosResponse?: AxiosResponse } | { error: true, errorMessage: string, envelope?: insSoapResponseError, axiosError?: AxiosError }> {
-    const NSSoapURL = `${getNSSuitetalkApiHost(ctx.accountId)}/services/NetSuitePort_2023_1`;
+    const NSSoapURL = `${getNsHost(ctx.accountId, "suitetalk")}/services/NetSuitePort_2023_1`;
 
     let oauth = new nsOAuth1({
         key: ctx.clientId,

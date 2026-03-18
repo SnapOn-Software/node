@@ -1,7 +1,7 @@
 import { IDictionary, isNullOrUndefined, newGuid, parseQueryString } from "@kwiz/common";
 import { createHmac } from "crypto";
 
-export type tnsOAuthRequestMethods = "get" | "post" | "patch";
+export type tnsOAuthRequestMethods = "get" | "post" | "patch" | "delete" | "put";
 export interface insOAuth1RequestConfig {
     key: string;
     secret: string;

@@ -1,4 +1,4 @@
-import { getNSSuitetalkApiHost, tnsContext } from "@kwiz/common";
+import { getNsHost, tnsContext } from "@kwiz/common";
 import { getNSRESTResponse, insRestOptions } from "./ns";
 
 //Valid filters: https://docs.oracle.com/en/cloud/saas/netsuite/ns-online-help/section_1545222128.html#Record-Collection-Filtering
@@ -8,7 +8,7 @@ import { getNSRESTResponse, insRestOptions } from "./ns";
 /** pass in a type for a single result or type[] for a collection result */
 export async function callNSRest<T>(
     ctx: tnsContext,
-    /** API path after the services/rest/record/v1/ - or starts with / to call other non services-rest endpoints lie /services/rest/auth */
+    /** API path after the services/rest/record/v1/ - or starts with / to call other non services-rest endpoints like /services/rest/auth */
     path: string, options?: insRestOptions<T> & {
         queryString?: {
             /** select fields - split by , */
@@ -18,7 +18,7 @@ export async function callNSRest<T>(
     }) {
     let query = Object.keys(options?.queryString || {}).map((qs, index) => `${index === 0 ? '?' : '&'}${qs}=${encodeURIComponent(options.queryString[qs])}`).join('');
 
-    const url = `${getNSSuitetalkApiHost(ctx.accountId)}${path.startsWith('/') ? path : `/services/rest/record/v1/${path}`}${query}`;
+    const url = `${getNsHost(ctx.accountId,"suitetalk")}${path.startsWith('/') ? path : `/services/rest/record/v1/${path}`}${query}`;
 
     return await getNSRESTResponse<T>(ctx, url, options);
 }

@@ -1,6 +1,7 @@
-import { getNSSuitetalkApiHost, isString, tnsContext } from "@kwiz/common";
+import { getNsHost, isString, tnsContext } from "@kwiz/common";
 import { getNSRESTResponse, insRestOptions } from "./ns";
 
+/** T is a single item from the returned collection */
 export async function callNSSuiteQL<T>(ctx: tnsContext,
     /* SuiteQL Query, or {q:string} with query */
     payload: {
@@ -10,7 +11,7 @@ export async function callNSSuiteQL<T>(ctx: tnsContext,
     } | string,
     options?: Omit<insRestOptions<T>, "payload">
 ) {
-    const url = `${getNSSuitetalkApiHost(ctx.accountId)}/services/rest/query/v1/suiteql`;
+    const url = `${getNsHost(ctx.accountId, "suitetalk")}/services/rest/query/v1/suiteql`;
 
     return await getNSRESTResponse<T[]>(ctx, url, {
         method: "post",

@@ -56,15 +56,24 @@ export async function getNSRESTResponse<DataType, ResultType = toResultType<Data
         case "post":
             result = await axios.post<DataType>(url, options.payload, config);
             break;
+        case "put":
+            result = await axios.put<DataType>(url, options.payload, config);
+            break;
+        case "delete":
+            result = await axios.delete<DataType>(url, config);
+            break;
         case "get":
+        default:
             result = await axios.get<DataType>(url, config);
             break;
     }
 
     if (options?.responseDigest)
         return options.responseDigest(result);
-    else if (typeof (result.data) === "string")
-        return jsonParse<ResultType>(result.data);
+    else if (typeof (result.data) === "string") {
+        const parsed = jsonParse<ResultType>(result.data);
+        return isNullOrUndefined(parsed) && isNotEmptyString(result.data) ? result.data as ResultType : parsed;
+    }
     else
         return result.data as ResultType;
 }
