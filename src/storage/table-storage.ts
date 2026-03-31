@@ -8,8 +8,6 @@ import { ListTableEntitiesOptions, TableClient, TableServiceClient, UpdateMode, 
 import { CommonLogger, IDictionary, isNotEmptyArray, isNotEmptyString, isNullOrEmptyString, isNullOrUndefined, isNumber, splitString } from "@kwiz/common";
 import { IOdataFilterStatement, ODataJoinOperators, ODataOperators, getOdataFilter } from "./odata";
 
-const logger = new CommonLogger("table-storage");
-
 var connectionString: string = null;
 export function ConfigureTableStorage(config: { connectionString: string; }) {
     connectionString = config.connectionString;
@@ -157,6 +155,8 @@ export async function getItems<DataType extends TableEntityBase & TableEntityTyp
     postFilter?: (item: DataType) => boolean;
 }): Promise<TableOperationResult<DataType[]>> {
     const table = getTableClient(tableName);
+    const logger = new CommonLogger(`table-storage-${tableName}`);
+
     let success = true;
     let errorCode: string;
     let result: DataType[] = [];

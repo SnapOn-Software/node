@@ -62,7 +62,7 @@
   },
   "packageManager": "npm@9.5.1",
   "devDependencies": {
-    "@types/node": "^18.19.21",
+    "@types/node": "^22.19.15",
     "@types/nodemailer": "^7.0.9",
     "@types/xml2js": "^0.4.14",
     "check-node-version": "^4.2.1",
@@ -78,7 +78,7 @@
     "@azure/msal-node": "^2.6.4",
     "@azure/storage-blob": "^12.31.0",
     "@jsforce/jsforce-node": "^3.10.14",
-    "@kwiz/common": "^1.0.218",
+    "@kwiz/common": "^1.0.226",
     "axios": "^1.6.7",
     "esbuild": "^0.19.12",
     "get-tsconfig": "^4.7.2",

@@ -3,8 +3,11 @@ import { AuthContextType, AuthenticationModes, CommonLogger, GetError, ITenantIn
 //find tenant id? https://login.microsoftonline.com/kwizcom.onmicrosoft.com/.well-known/openid-configuration
 //https://stackoverflow.com/questions/54771270/msal-ad-token-not-valid-with-sharepoint-online-csom
 
-const logger = new CommonLogger("msal");
-
+var _logger: CommonLogger;
+function logger() {
+    if (!_logger) _logger = new CommonLogger("msal");
+    return _logger;
+}
 var apps: { [tenant: string]: ConfidentialClientApplication } = {};
 
 function GetApp(tenantInfo: ITenantInfo, auth: AuthContextType) {
@@ -85,23 +88,6 @@ export async function GetMSALUserToken(tenantInfo: ITenantInfo, auth: AuthContex
         app.clearCache();
 
     let error: string;
-    // if (info.account) {
-    //     try {
-    //         const result = await app.acquireTokenSilent({
-    //             account: info.account,
-    //             scopes: info.scopes,
-    //             redirectUri: info.redirectUri
-    //         });
-    //         return {
-    //             success: true,
-    //             accessToken: result.accessToken,
-    //             account: result.account
-    //         }
-    //     } catch (e) {
-    //         logger.error(e);
-    //         error = `Could not get token for account: ${GetError(e)}`;
-    //     }
-    // }
     if (info.code) {
         try {
             const result = await app.acquireTokenByCode({
@@ -116,7 +102,7 @@ export async function GetMSALUserToken(tenantInfo: ITenantInfo, auth: AuthContex
                 account: result.account
             }
         } catch (e) {
-            logger.error(e);
+            logger().error(e);
             error = `Could not redeem code: ${GetError(e)}`;
         }
     }

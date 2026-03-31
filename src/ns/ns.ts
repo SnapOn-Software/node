@@ -1,4 +1,4 @@
-import { IDictionary, insSuiteTalkRecordResponseBase, insSuiteTalkRecordsResponseCollection, isNotEmptyString, isnsAccessToken, isnsTokenInfo, isNullOrUndefined, jsonParse, tnsContext, tnsFieldValueTypes } from "@kwiz/common";
+import { IDictionary, insSuiteTalkRecordResponseBase, insSuiteTalkRecordsResponseCollection, isNotEmptyString, isnsAccessToken, isnsTokenInfo, isNullOrUndefined, jsonParse, nsGetErrorDetails, tnsContext, tnsFieldValueTypes } from "@kwiz/common";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { getAxiosConfig, getAxiosConfigBearer } from "../axios";
 import { nsOAuth1, tnsOAuthRequestMethods } from "./oauth1";
@@ -49,23 +49,28 @@ export async function getNSRESTResponse<DataType, ResultType = toResultType<Data
         });
     }
     let result: AxiosResponse = null;
-    switch (method) {
-        case "patch":
-            result = await axios.patch<DataType>(url, options.payload, config);
-            break;
-        case "post":
-            result = await axios.post<DataType>(url, options.payload, config);
-            break;
-        case "put":
-            result = await axios.put<DataType>(url, options.payload, config);
-            break;
-        case "delete":
-            result = await axios.delete<DataType>(url, config);
-            break;
-        case "get":
-        default:
-            result = await axios.get<DataType>(url, config);
-            break;
+    try {
+        switch (method) {
+            case "patch":
+                result = await axios.patch<DataType>(url, options.payload, config);
+                break;
+            case "post":
+                result = await axios.post<DataType>(url, options.payload, config);
+                break;
+            case "put":
+                result = await axios.put<DataType>(url, options.payload, config);
+                break;
+            case "delete":
+                result = await axios.delete<DataType>(url, config);
+                break;
+            case "get":
+            default:
+                result = await axios.get<DataType>(url, config);
+                break;
+        }
+    } catch (e) {
+        const asError = nsGetErrorDetails(e);
+        throw asError ? new Error(asError["o:errorDetails"]?.[0].detail || asError.title, { cause: e }) : e;
     }
 
     if (options?.responseDigest)
