@@ -98,7 +98,7 @@ export class BlobStorageHelper<T> {
 }
 
 function getBlobClient() {
-    if (isNullOrEmptyString(connectionString)) throw Error("Call ConfigureTableStorage first");
+    if (isNullOrEmptyString(connectionString)) throw Error("Call ConfigureBlobStorage first");
     return BlobServiceClient.fromConnectionString(connectionString);
 }
 async function GetBlob<FileDataType = string | ArrayBuffer>(container: string, name: string, as: "string" | "buffer"): Promise<apiResultType<FileDataType>> {

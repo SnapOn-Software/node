@@ -1,6 +1,6 @@
 import { SaveResult } from "@jsforce/jsforce-node";
 import { CustomField, SaveResult as upsertSaveResult } from "@jsforce/jsforce-node/lib/api/metadata";
-import { chunkArray, forEachAsync, GetError, IDictionary, iFileData, isNotEmptyString, isNullOrEmptyString, isNullOrUndefined } from "@kwiz/common";
+import { chunkArray, cleanupBase64FileData, forEachAsync, GetError, IDictionary, iFileData, isNotEmptyString, isNullOrEmptyString, isNullOrUndefined } from "@kwiz/common";
 import { sf_custom_field_name_suffix } from "./constants";
 import { iSFEntity, iSFOrgInfo, sf_builtin_profiles, sf_conn, sf_field_ex, sf_field_value_types, sf_known_entities_type, sf_metadata_field_type, sf_metadata_field_types, sf_throttle } from "./types";
 
@@ -194,11 +194,7 @@ export async function sfSetFieldPermissions(conn: sf_conn, fieldName: string) {
 }
 
 export async function sfAttachFile(conn: sf_conn, itemId: string, file: iFileData) {
-    const base64Marker = 'base64,';
-    const base64 = (file.base64.indexOf(base64Marker) >= 0)
-        ? file.base64.slice(file.base64.indexOf(base64Marker) + base64Marker.length)
-        : file.base64;
-
+    const base64 = cleanupBase64FileData(file.base64);
 
     const res = await conn.sobject('ContentVersion').create({
         PathOnClient: file.filename,
