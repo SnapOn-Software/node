@@ -27,6 +27,10 @@ export function HttpRespond(o?: {
             ...(o?.cache ? apiResponseHeaders.cache(o.cache === true ? 5 : o.cache) : {}),
             ...(o?.html ? apiResponseHeaders.html : {})
         },
-        status: o?.status || o?.error ? 500 : HttpStatusCode.Ok
+        status: o?.status > 0 ?
+            o.status
+            : o?.error
+                ? 500
+                : HttpStatusCode.Ok
     } : undefined;
 }
