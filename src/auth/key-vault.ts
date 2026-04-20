@@ -1,7 +1,7 @@
 import { DefaultAzureCredential } from "@azure/identity";
 import { SecretClient } from "@azure/keyvault-secrets";
 import { CommonConfig, CommonLogger, GetError, isNullOrEmptyString, promiseOnce, shiftDate, shiftDateValues } from "@kwiz/common";
-import forge from "node-forge";
+import * as forge from "node-forge";
 
 var logger: CommonLogger;
 var keyVaultUrl: string = null;
