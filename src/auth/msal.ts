@@ -1,5 +1,5 @@
 import { ConfidentialClientApplication, ICachePlugin, TokenCacheContext } from "@azure/msal-node";
-import { AuthContextType, AuthenticationModes, CommonLogger, GetError, isBoolean, ITenantInfo } from "@kwiz/common";
+import { AuthContextType, AuthenticationModes, CommonLogger, GetError, isBoolean, ITenantInfo, promiseCatch } from "@kwiz/common";
 //find tenant id? https://login.microsoftonline.com/kwizcom.onmicrosoft.com/.well-known/openid-configuration
 //https://stackoverflow.com/questions/54771270/msal-ad-token-not-valid-with-sharepoint-online-csom
 
@@ -24,7 +24,7 @@ export type msalCacheHandler = {
 function createCachePlugin(handler: msalCacheHandler): ICachePlugin {
     return {
         async beforeCacheAccess(cacheContext: TokenCacheContext): Promise<void> {
-            const cacheData = await handler.load();
+            const cacheData = await promiseCatch(() => handler.load(), null);
             if (cacheData) {
                 cacheContext.tokenCache.deserialize(cacheData);
             }
@@ -33,7 +33,7 @@ function createCachePlugin(handler: msalCacheHandler): ICachePlugin {
             if (!cacheContext.cacheHasChanged) {
                 return;
             }
-            await handler.save(cacheContext.tokenCache.serialize());
+            const cacheData = await promiseCatch(() => handler.save(cacheContext.tokenCache.serialize()), null);
         }
     };
 }
