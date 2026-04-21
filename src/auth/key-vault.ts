@@ -102,6 +102,46 @@ export async function getLatestCertificate(certName: string, forceRefresh = fals
     }
 }
 
+type tSecretValue = {
+    value: string;
+    fetched: number;
+};
+/**
+ * Fetches the latest enabled secret value from Azure Key Vault.
+ * By default it caches the result and reuses it, forceRefresh to bypass.
+ */
+export async function getLatestSecret(secretName: string, forceRefresh = false): Promise<string> {
+    try {
+        if (isNullOrEmptyString(keyVaultUrl)) {
+            console.error("Call ConfigureKeyVault first!");
+            throw Error("Call ConfigureKeyVault first!");
+        }
+
+        const res = await promiseOnce<tSecretValue>(`getLatestSecret(${secretName})`, async () => {
+            logger.log(`Fetching secret ${secretName}`);
+
+            const credential = new DefaultAzureCredential();
+            const client = new SecretClient(keyVaultUrl, credential);
+            const secret = await client.getSecret(secretName);
+            return { value: secret.value, fetched: new Date().getTime() };
+        }, async res => {
+            if (forceRefresh) return false;//never valid... get a new one.
+
+            if (res?.fetched > 0) {
+                const valid = shiftDate("h24", new Date(res.fetched)).getTime() > new Date().getTime();
+                if (!valid) logger.log(`${secretName} too stale`);
+                return valid;
+            }
+            return false;
+        });
+
+        return res.value;
+    } catch (error) {
+        logger.error(`Failed to fetch secret [${secretName}] from Key Vault: ${GetError(error)}`);
+        return null;
+    }
+}
+
 /** withBias :
  * The certificate is valid only if:
  *  - It started at least 1 day before today (oneDayAgo >= notBefore)
