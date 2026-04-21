@@ -1,7 +1,13 @@
-import { ConfidentialClientApplication } from "@azure/msal-node";
-import { AuthContextType, AuthenticationModes, CommonLogger, GetError, ITenantInfo } from "@kwiz/common";
+import { ConfidentialClientApplication, ICachePlugin, TokenCacheContext } from "@azure/msal-node";
+import { AuthContextType, AuthenticationModes, CommonLogger, GetError, isBoolean, ITenantInfo } from "@kwiz/common";
 //find tenant id? https://login.microsoftonline.com/kwizcom.onmicrosoft.com/.well-known/openid-configuration
 //https://stackoverflow.com/questions/54771270/msal-ad-token-not-valid-with-sharepoint-online-csom
+
+declare global {
+    // Process-local serialized token cache store, keyed by app identity.
+    // eslint-disable-next-line no-var
+    var __kwizMsalTokenCache: Record<string, string> | undefined;
+}
 
 var _logger: CommonLogger;
 function logger() {
@@ -10,7 +16,29 @@ function logger() {
 }
 var apps: { [tenant: string]: ConfidentialClientApplication } = {};
 
-function GetApp(tenantInfo: ITenantInfo, auth: AuthContextType) {
+
+export type msalCacheHandler = {
+    load: () => Promise<string>;
+    save: (value: string) => Promise<void>;
+};
+function createCachePlugin(handler: msalCacheHandler): ICachePlugin {
+    return {
+        async beforeCacheAccess(cacheContext: TokenCacheContext): Promise<void> {
+            const cacheData = await handler.load();
+            if (cacheData) {
+                cacheContext.tokenCache.deserialize(cacheData);
+            }
+        },
+        async afterCacheAccess(cacheContext: TokenCacheContext): Promise<void> {
+            if (!cacheContext.cacheHasChanged) {
+                return;
+            }
+            await handler.save(cacheContext.tokenCache.serialize());
+        }
+    };
+}
+
+function GetApp(tenantInfo: ITenantInfo, auth: AuthContextType, options?: { cache?: msalCacheHandler, clearCache?: boolean; }) {
     let key = `${tenantInfo.idOrName}|${auth.authenticationMode}|${auth.clientId}`
     if (!apps[key]) {
         auth.authenticationMode === AuthenticationModes.clientSecret
@@ -20,7 +48,7 @@ function GetApp(tenantInfo: ITenantInfo, auth: AuthContextType) {
                     authority: tenantInfo.authorityUrl,
                     clientSecret: auth.clientSecret
                 },
-
+                cache: options?.cache ? { cachePlugin: createCachePlugin(options.cache) } : undefined
             })
             : apps[key] = new ConfidentialClientApplication({
                 auth: {
@@ -31,17 +59,19 @@ function GetApp(tenantInfo: ITenantInfo, auth: AuthContextType) {
                         privateKey: auth.privateKey
                     }
                 },
-
+                cache: options?.cache ? { cachePlugin: createCachePlugin(options.cache) } : undefined
             });
     }
+    if (options?.clearCache)
+        apps[key].clearCache();
+
     return apps[key];
 }
 
 /** Get app-only token. client secret not supported by SharePoint, must use certificate */
-export async function GetMSALToken(tenantInfo: ITenantInfo, scope: string, auth: AuthContextType, clearCache?: boolean) {
-    const app = GetApp(tenantInfo, auth);
-    if (clearCache)
-        app.clearCache();
+export async function GetMSALToken(tenantInfo: ITenantInfo, scope: string, auth: AuthContextType, options: { cache?: msalCacheHandler; clearCache?: boolean; } | boolean = {}) {
+    options = isBoolean(options) ? { clearCache: options } : options;
+    const app = GetApp(tenantInfo, auth, options);
     let token = await app.acquireTokenByClientCredential({
         scopes: [`${scope}/.default`]
     });
@@ -68,26 +98,42 @@ export interface iUserTokenRequestInfo {
     state?: string;
     /** redeem a code from redirect  */
     code?: string;
-    // this is used for client side, when there is local cache.
-    // this flow is not relevant for server side, where there is no cache or cache is for different users/tenants
-    // /** request a new token silently from account cache */
-    // account?: iUserTokenAccountInfo;
+    /** request a new token silently for account from cache - keep somewhere safe or encrypt */
+    account?: iUserTokenAccountInfo;
 }
 
 /** Get user token.
  * if code or account proivded will attempt to get a token, otherwise will redirect the user
  * client secret not supported by SharePoint, must use certificate */
-export async function GetMSALUserToken(tenantInfo: ITenantInfo, auth: AuthContextType, info: iUserTokenRequestInfo, clearCache?: boolean)
+export async function GetMSALUserToken(tenantInfo: ITenantInfo, auth: AuthContextType, info: iUserTokenRequestInfo, options: { cache?: msalCacheHandler; clearCache?: boolean; } | boolean = {})
     : Promise<{
         success: true;
         accessToken: string;
         account: iUserTokenAccountInfo;
     } | { success: false; redirect: string; error?: string; }> {
-    const app = GetApp(tenantInfo, auth);
-    if (clearCache)
-        app.clearCache();
+    options = isBoolean(options) ? { clearCache: options } : options;
+    const app = GetApp(tenantInfo, auth, options);
 
     let error: string;
+
+    if (info.account) {
+        try {
+            const result = await app.acquireTokenSilent({
+                account: info.account,
+                scopes: [`${info.scope}/.default`],
+                redirectUri: info.redirectUri
+            });
+            return {
+                success: true,
+                accessToken: result.accessToken,
+                account: result.account
+            }
+        } catch (e) {
+            // logger().error(e);
+            // error = `Could not get from cache: ${GetError(e)}`;
+        }
+    }
+
     if (info.code) {
         try {
             const result = await app.acquireTokenByCode({
