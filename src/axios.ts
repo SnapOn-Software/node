@@ -2,7 +2,7 @@ import { isNotEmptyString, isNullOrEmptyString } from "@kwiz/common";
 import { AxiosError, AxiosRequestConfig } from "axios";
 import { Agent, globalAgent } from "https";
 
-type axiosConfigOptions = {
+export type axiosConfigOptions = {
     contantType?: "application/json" | "application/json; odata=nometadata" | "application/xml";
 }
 export function getAxiosConfigBearer(token: string, options?: axiosConfigOptions) {
@@ -23,12 +23,16 @@ export function getAxiosConfig(token?: string, options?: axiosConfigOptions) {
         config.headers!.Authorization = token;
 
     if (options) {
-        if (!isNullOrEmptyString(options.contantType)) {
-            config.headers!["Content-Type"] = options.contantType;
-            config.headers!["Accept"] = options.contantType;
-        }
+        applyAxiosConfigOptions(config, options);
     }
     return config;
+}
+
+export function applyAxiosConfigOptions(config: AxiosRequestConfig<any>, options: axiosConfigOptions) {
+    if (!isNullOrEmptyString(options.contantType)) {
+        config.headers!["Content-Type"] = options.contantType;
+        config.headers!["Accept"] = options.contantType;
+    }
 }
 
 export function getAxiosErrorData(error: AxiosError) {
