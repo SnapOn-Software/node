@@ -110,6 +110,7 @@ export async function GetMSALUserToken(tenantInfo: ITenantInfo, auth: AuthContex
         success: true;
         accessToken: string;
         account: iUserTokenAccountInfo;
+        expiresOn: Date;
     } | { success: false; redirect: string; error?: string; }> {
     options = isBoolean(options) ? { clearCache: options } : options;
     const app = GetApp(tenantInfo, auth, options);
@@ -126,7 +127,8 @@ export async function GetMSALUserToken(tenantInfo: ITenantInfo, auth: AuthContex
             return {
                 success: true,
                 accessToken: result.accessToken,
-                account: result.account
+                account: result.account,
+                expiresOn: result.expiresOn
             }
         } catch (e) {
             // logger().error(e);
@@ -145,7 +147,8 @@ export async function GetMSALUserToken(tenantInfo: ITenantInfo, auth: AuthContex
             return {
                 success: true,
                 accessToken: result.accessToken,
-                account: result.account
+                account: result.account,
+                expiresOn: result.expiresOn
             }
         } catch (e) {
             logger().error(e);
