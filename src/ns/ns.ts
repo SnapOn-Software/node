@@ -23,7 +23,7 @@ export async function getNSRESTResponse<DataType, ResultType = toResultType<Data
             : "post";
 
     if (isnsAccessToken(ctx)) {
-        config = getAxiosConfigBearer(ctx.accessToken, { contantType: "application/json" });
+        config = getAxiosConfigBearer(ctx.accessToken, { contentType: "application/json" });
     }
     else if (isnsTokenInfo(ctx)) {
         let oauth = new nsOAuth1({
@@ -39,7 +39,7 @@ export async function getNSRESTResponse<DataType, ResultType = toResultType<Data
             token: ctx.tokenId,
             tokenSecret: ctx.tokenSecret
         });
-        config = getAxiosConfig(restAuthentication, { contantType: "application/json" });
+        config = getAxiosConfig(restAuthentication, { contentType: "application/json" });
     }
     else throw Error("Invalid context");
 

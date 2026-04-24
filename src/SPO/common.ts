@@ -17,6 +17,6 @@ export async function getAxiosConfigSharePoint(tenantInfo: ITenantInfo, hostName
     const token = isNotEmptyString(options?.token)
         ? options.token
         : await GetMSALToken(tenantInfo, GetMSALSiteScope(hostName), auth, options?.clearTokenCache);
-    const config = getAxiosConfigBearer(token, { contantType: "application/json; odata=nometadata" });
+    const config = getAxiosConfigBearer(token, { contentType: "application/json; odata=nometadata" });
     return config;
 }
