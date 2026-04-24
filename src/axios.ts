@@ -3,7 +3,9 @@ import { AxiosError, AxiosRequestConfig } from "axios";
 import { Agent, globalAgent } from "https";
 
 export type axiosConfigOptions = {
+    /** @deprecated spelling mistake */
     contantType?: "application/json" | "application/json; odata=nometadata" | "application/xml";
+    contentType?: "application/json" | "application/json; odata=nometadata" | "application/xml";
 }
 export function getAxiosConfigBearer(token: string, options?: axiosConfigOptions) {
     return getAxiosConfig(`Bearer ${token}`, options);
@@ -29,9 +31,10 @@ export function getAxiosConfig(token?: string, options?: axiosConfigOptions) {
 }
 
 export function applyAxiosConfigOptions(config: AxiosRequestConfig<any>, options: axiosConfigOptions) {
-    if (!isNullOrEmptyString(options.contantType)) {
-        config.headers!["Content-Type"] = options.contantType;
-        config.headers!["Accept"] = options.contantType;
+    const contentType = options.contantType || options.contentType;
+    if (!isNullOrEmptyString(contentType)) {
+        config.headers!["Content-Type"] = contentType;
+        config.headers!["Accept"] = contentType;
     }
 }
 
