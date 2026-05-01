@@ -18,7 +18,7 @@
     "build-explain": "tsc --explainFiles",
     "check-dependencies": "npx dpdm --no-tree --no-warning ./src/index.ts",
     "yalc-link": "yalc publish",
-    "test": "node --import tsx --test src",
+    "test": "node --import tsx --test \"src/**/*.test.js\"",
     "npm-v-patch": "npm version patch && git push origin main:main && git push --tags",
     "npm-v-major": "npm version major && git push origin main:main && git push --tags",
     "npm-publish": "npm publish --access public",
