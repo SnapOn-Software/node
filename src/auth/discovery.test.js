@@ -1,4 +1,5 @@
 import assert from 'assert/strict';
+import '../test/setup-webcrypto.test';
 import test from 'node:test';
 import { DiscoverTenantInfo } from "./discovery";
 
