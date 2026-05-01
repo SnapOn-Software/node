@@ -1,5 +1,5 @@
 import assert from 'assert/strict';
-import '../test/setup-webcrypto.test';
+import '../helpers/setup-webcrypto.test';
 import test from 'node:test';
 import { IsAzuriteRunning } from "./common";
 import { ODataOperators } from "./odata";

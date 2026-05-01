@@ -1,7 +1,7 @@
 import { sign as clientSign, unsign as clientUnsign, newGuid } from '@kwiz/common';
 import assert from 'assert/strict';
 import test from 'node:test';
-import '../test/setup-webcrypto.test';
+import '../helpers/setup-webcrypto.test';
 import { sign, unsign } from "./crypto";
 
 test('sign', async t => {
