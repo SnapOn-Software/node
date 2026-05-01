@@ -100,6 +100,8 @@ export interface iUserTokenRequestInfo {
     code?: string;
     /** request a new token silently for account from cache - keep somewhere safe or encrypt */
     account?: iUserTokenAccountInfo;
+    /** when true will force the user to select a user, won't allow auto single sign in. Useful for admin login pages. */
+    prompt?: boolean;
 }
 
 /** Get user token.
@@ -158,7 +160,10 @@ export async function GetMSALUserToken(tenantInfo: ITenantInfo, auth: AuthContex
 
     const loginUrl = await app.getAuthCodeUrl({
         ...info,
-        scopes: [`${info.scope}/.default`]
+        scopes: [`${info.scope}/.default`],
+        prompt: info.prompt
+            ? "select_account"// This forces the account selector
+            : undefined
     });
     return { success: false, redirect: loginUrl, error };
 }
