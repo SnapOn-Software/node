@@ -21,6 +21,7 @@
     "test": "node --import tsx --test \"src/**/*.test.js\"",
     "npm-v-patch": "npm version patch && git push origin main:main && git push --tags",
     "npm-v-major": "npm version major && git push origin main:main && git push --tags",
+    "clear-npm-cache": "npm cache clean --force",
     "npm-publish": "npm publish --access public",
     "reset-repo": "git fetch origin && git reset --hard origin/main",
     "__update-kwiz-packages": "npm install @kwiz/common@latest",
@@ -29,7 +30,6 @@
     "remove-all-index-files": "cd src && del /s /f /q exports-index.ts",
     "install-packages": "npm install azurite -g && npm ci",
     "startDevStorage": "azurite -s -l",
-    "clear-npm-cache": "npm cache clean --force",
     "prestart": "check-node-version --node 22"
   },
   "repository": {
@@ -81,7 +81,7 @@
     "@azure/msal-node": "^2.6.4",
     "@azure/storage-blob": "^12.31.0",
     "@jsforce/jsforce-node": "^3.10.14",
-    "@kwiz/common": "^1.0.250",
+    "@kwiz/common": "^1.0.255",
     "axios": "^1.6.7",
     "esbuild": "^0.19.12",
     "get-tsconfig": "^4.7.2",

@@ -1,5 +1,6 @@
 {
     "npm.exclude": [
         "**/.yalc/**"
-    ]
+    ],
+    "js/ts.tsdk.path": "node_modules\\typescript\\lib"
 }
