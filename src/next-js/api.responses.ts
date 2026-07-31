@@ -10,11 +10,12 @@ export const apiResponseHeaders = {
     }),
     html: {
         'Content-Type': 'text/html'
-    }
+    },
+    noCache: { "Cache-Control": "no-store" }
 };
 /** pass to NextResponse.json or new NextResponse */
 export function HttpRespond(o?: {
-    /** true: 5 minutes, or minutes */
+    /** true: 5 minutes, or minutes, false: no-store, no value - ignored */
     cache?: boolean | number;
     cors?: boolean;
     html?: boolean;
@@ -24,7 +25,11 @@ export function HttpRespond(o?: {
     return o ? {
         headers: {
             ...(o?.cors ? apiResponseHeaders.cors : {}),
-            ...(o?.cache ? apiResponseHeaders.cache(o.cache === true ? 5 : o.cache) : {}),
+            ...(o?.cache
+                ? apiResponseHeaders.cache(o.cache === true ? 5 : o.cache)
+                : o?.cache === false//explicitly set to false
+                    ? apiResponseHeaders.noCache
+                    : {}),
             ...(o?.html ? apiResponseHeaders.html : {})
         },
         status: o?.status > 0 ?

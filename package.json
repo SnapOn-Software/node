@@ -22,7 +22,6 @@
     "npm-v-patch": "npm version patch && git push origin main:main && git push --tags",
     "npm-v-major": "npm version major && git push origin main:main && git push --tags",
     "clear-npm-cache": "npm cache clean --force",
-    "npm-publish": "npm publish --access public",
     "reset-repo": "git fetch origin && git reset --hard origin/main",
     "__update-kwiz-packages": "npm install @kwiz/common@latest",
     "link-local-common": "yalc add @kwiz/common",
