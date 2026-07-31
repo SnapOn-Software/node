@@ -33,7 +33,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/KWizCom/node.git"
+    "url": "git+https://github.com/SnapOn-Software/node.git"
   },
   "keywords": [
     "KWIZ",
@@ -51,10 +51,10 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/KWizCom/node/issues",
-    "email": "support@kwizcom.com"
+    "url": "https://github.com/SnapOn-Software/node/issues",
+    "email": "support@snapon-software.com"
   },
-  "homepage": "https://github.com/KWizCom/node#readme",
+  "homepage": "https://github.com/SnapOn-Software/node#readme",
   "private": false,
   "engines": {
     "node": ">=16"
