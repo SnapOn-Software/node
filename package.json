@@ -29,7 +29,7 @@
     "remove-all-index-files": "cd src && del /s /f /q exports-index.ts",
     "install-packages": "npm install azurite -g && npm ci",
     "startDevStorage": "azurite -s -l",
-    "prestart": "check-node-version --node 22"
+    "prestart": "check-node-version --node \">=22.12.0\""
   },
   "repository": {
     "type": "git",
@@ -57,7 +57,7 @@
   "homepage": "https://github.com/SnapOn-Software/node#readme",
   "private": false,
   "engines": {
-    "node": ">=16"
+    "node": ">=22.12.0"
   },
   "packageManager": "npm@9.5.1",
   "devDependencies": {
@@ -80,7 +80,7 @@
     "@azure/msal-node": "^2.6.4",
     "@azure/storage-blob": "^12.31.0",
     "@jsforce/jsforce-node": "^3.10.14",
-    "@kwiz/common": "^1.0.255",
+    "@kwiz/common": "^1.0.263",
     "axios": "^1.6.7",
     "esbuild": "^0.19.12",
     "get-tsconfig": "^4.7.2",
