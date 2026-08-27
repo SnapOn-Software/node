@@ -24,6 +24,11 @@ export async function getNSRESTResponse<DataType, ResultType = toResultType<Data
 
     if (isnsAccessToken(ctx)) {
         config = getAxiosConfigBearer(ctx.accessToken, { contentType: "application/json" });
+
+        //in case user language is different allow sender to pass in a language
+        if (isNotEmptyString(ctx.acceptLanguage)) {
+            config.headers['Accept-Language'] = ctx.acceptLanguage;
+        }
     }
     else if (isnsTokenInfo(ctx)) {
         let oauth = new nsOAuth1({
