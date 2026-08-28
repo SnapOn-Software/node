@@ -20,5 +20,5 @@ export async function callNSRest<T>(
 
     const url = `${getNsHost(ctx.accountId,"suitetalk")}${path.startsWith('/') ? path : `/services/rest/record/v1/${path}`}${query}`;
 
-    return await getNSRESTResponse<T>(ctx, url, options);
+    return getNSRESTResponse<T>(ctx, url, options);
 }

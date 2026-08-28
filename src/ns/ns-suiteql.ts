@@ -13,7 +13,7 @@ export async function callNSSuiteQL<T>(ctx: tnsContext,
 ) {
     const url = `${getNsHost(ctx.accountId, "suitetalk")}/services/rest/query/v1/suiteql`;
 
-    return await getNSRESTResponse<T[]>(ctx, url, {
+    return getNSRESTResponse<T[]>(ctx, url, {
         method: "post",
         payload: isString(payload) ? { q: payload } : payload,
         headers: {
