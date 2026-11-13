@@ -5,6 +5,10 @@ export const apiResponseHeaders = {
     cors: {
         'Access-Control-Allow-Origin': '*'
     },
+    cors_post: {
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type",
+    },
     cache: (min: number) => ({
         "Cache-Control": `public, max-age=${((min > 0 ? min : 5) * 60)}`
     }),
@@ -18,13 +22,16 @@ export function HttpRespond(o?: {
     /** true: 5 minutes, or minutes, false: no-store, no value - ignored */
     cache?: boolean | number;
     cors?: boolean;
+    /** cors post requires an OPTIONS response + additional headers */
+    cors_post?: boolean;
     html?: boolean;
     error?: boolean;
     status?: HttpStatusCode
 }): ResponseInit {
     return o ? {
         headers: {
-            ...(o?.cors ? apiResponseHeaders.cors : {}),
+            ...((o?.cors || o?.cors_post) ? apiResponseHeaders.cors : {}),
+            ...(o?.cors_post ? apiResponseHeaders.cors_post : {}),
             ...(o?.cache
                 ? apiResponseHeaders.cache(o.cache === true ? 5 : o.cache)
                 : o?.cache === false//explicitly set to false
