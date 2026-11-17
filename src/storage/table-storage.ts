@@ -5,7 +5,7 @@
 //https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite?tabs=visual-studio-code
 import { FullOperationResponse } from "@azure/core-client";
 import { ListTableEntitiesOptions, TableClient, TableServiceClient, UpdateMode, odata } from "@azure/data-tables";
-import { CommonLogger, IDictionary, isNotEmptyArray, isNotEmptyString, isNullOrEmptyString, isNullOrUndefined, isNumber, splitString } from "@kwiz/common";
+import { CommonLogger, IDictionary, isNotEmptyArray, isNotEmptyString, isNullOrEmptyString, isNullOrUndefined, isNumber, objectsEqual, splitString } from "@kwiz/common";
 import { IOdataFilterStatement, ODataJoinOperators, ODataOperators, getOdataFilter } from "./odata";
 
 var connectionString: string = null;
@@ -83,27 +83,6 @@ export async function listTables() {
     }
     return arr;
 }
-
-// async function ensureTableObsolete(name: string) {
-//     const tableService = getTableService();
-//     //create table
-//     // If the table 'newTable' already exists, createTable doesn't throw
-//     let success = false;
-//     try {
-//         await tableService.createTable(name, {
-//             onResponse: raw => {
-//                 let error = isError(raw);
-//                 success = error.isError !== true;
-//                 if (error.isError) console.log(error.message);
-//             }
-//         });
-//     }
-//     catch (e) {
-//         success = false;
-//     }
-
-//     return success;
-// }
 
 export async function ensureTable(tableName: string): Promise<TableOperationResult> {
     const table = getTableClient(tableName);
@@ -411,4 +390,32 @@ export function restoreOverflowColumnValue<T = IDictionary<any>>(item: T, longPr
         item[propertyName] = result;
     });
     return item;
+}
+
+/** upsets an item, creates a new one, or update an exisitng one. if a key was updated - the original old item will be deleted. */
+export async function upsertItemEX<iTableItemKeys extends {
+    partitionKey: string; rowKey: string;
+}, iGetKeysType, iTableItemSaved extends iTableItemKeys & TableEntityType<iTableItemSaved>, iTableItemParsed extends iGetKeysType>
+    (table: Table<iTableItemKeys, iGetKeysType, iTableItemSaved, iTableItemParsed>,
+        //must cleanup this object from unwanted runtime variables. so make it required force caller to destruct the item and provide all wanted properties.
+        item: Required<iTableItemParsed>,
+        updateKeys?: iGetKeysType | true) {
+    let success = false;
+
+    if (updateKeys === true || (!isNullOrUndefined(updateKeys) && objectsEqual(table.getKeys(updateKeys), table.getKeys(item)))) {
+        //update existing item
+        const result = await table.upsertItem(item);
+        success = result.success;
+    }
+    else {
+        //add a new item
+        const result = await table.addItem(item);
+        success = result.success;
+        //delete orignal item
+        if (success && updateKeys) {
+            await table.deleteItemByKey(updateKeys);
+        }
+    }
+
+    return success;
 }
