@@ -83,6 +83,11 @@ export interface iSFOrgInfo {
     orgName: string;
 }
 
+export interface iSFUserInfo {
+    name: string;
+    email: string;
+}
+
 
 export interface iPicklistValue {
     active: boolean;

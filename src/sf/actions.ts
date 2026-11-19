@@ -2,26 +2,37 @@ import { SaveResult } from "@jsforce/jsforce-node";
 import { CustomField, SaveResult as upsertSaveResult } from "@jsforce/jsforce-node/lib/api/metadata";
 import { chunkArray, cleanupBase64FileData, forEachAsync, GetError, IDictionary, iFileData, isNotEmptyString, isNullOrEmptyString, isNullOrUndefined } from "@kwiz/common";
 import { sf_custom_field_name_suffix } from "./constants";
-import { iSFEntity, iSFOrgInfo, sf_builtin_profiles, sf_conn, sf_field_ex, sf_field_value_types, sf_known_entities_type, sf_metadata_field_type, sf_metadata_field_types, sf_throttle } from "./types";
+import { iSFEntity, iSFOrgInfo, iSFUserInfo, sf_builtin_profiles, sf_conn, sf_field_ex, sf_field_value_types, sf_known_entities_type, sf_metadata_field_type, sf_metadata_field_types, sf_throttle } from "./types";
 
-/** returns the user's name, or null if user not found. */
-export async function sfGetUserName(conn: sf_conn) {
+/** Returns the current user's info, or null if user not found. */
+export async function sfGetUserInfo(conn: sf_conn): Promise<iSFUserInfo | null> {
     try {
         let userId = conn.userInfo?.id;
         if (isNullOrEmptyString(userId)) {
             const identity = await conn.identity();
-            //console.log(identity);
-            if (isNotEmptyString(identity.display_name))
-                return identity.display_name;
+            if (isNotEmptyString(identity.display_name) && isNotEmptyString(identity.email))
+                return { name: identity.display_name, email: identity.email };
             userId = identity.user_id;
         }
-        const ui = await conn.query("SELECT Name FROM User WHERE Id = '" + userId + "'");
-        return ui.records[0].Name;
+        if (isNullOrEmptyString(userId))
+            throw new Error("Salesforce identity did not contain a user ID");
+        const ui = await conn.query("SELECT Name, Email FROM User WHERE Id = '" + userId + "'");
+        const user = ui.records[0];
+        if (!user)
+            throw new Error("Salesforce user not found");
+        return { name: user.Name, email: user.Email };
     } catch (e) {
         console.error(e);
         return null;
     }
 }
+
+/** returns the user's name, or null if user not found. */
+export async function sfGetUserName(conn: sf_conn) {
+    const info = await sfGetUserInfo(conn);
+    return info?.name ?? null;
+}
+
 export async function sfIsConnectionValid(conn: sf_conn) {
     const userName = await sfGetUserName(conn);
     return isNotEmptyString(userName);
