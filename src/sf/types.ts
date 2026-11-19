@@ -42,6 +42,7 @@ export interface isf_user_token {
     instanceUrl: string;
     accessToken: string;
     userName: string;
+    userEmail: string;
 }
 
 export type sf_conn = Connection<Schema>;

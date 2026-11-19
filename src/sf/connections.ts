@@ -1,6 +1,6 @@
 import * as jsforce from '@jsforce/jsforce-node';
 import { isNotEmptyString, jsonStringify } from "@kwiz/common";
-import { sfGetUserName } from "./actions";
+import { sfGetUserInfo } from "./actions";
 import { isf_cfg, isf_user_token, sf_instances } from "./types";
 
 const useInstanceForLogin = true;//this is the preferred method
@@ -102,11 +102,12 @@ export async function sf_oauth2_authorize(cfg: isf_cfg, authorizationCode: strin
     });
     await conn.authorize(authorizationCode);
 
-    const userName = await sfGetUserName(conn);
+    const info = await sfGetUserInfo(conn);
 
     return ({
         accessToken: conn.accessToken!,
         instanceUrl: conn.instanceUrl,
-        userName
+        userName: info.name,
+        userEmail: info.email
     });
 }
